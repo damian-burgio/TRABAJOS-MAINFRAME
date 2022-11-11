@@ -1,0 +1,308 @@
+ -------------------------------------------------------------------------------
+ VIEW       ALU0023.CURSOS.FUENTE(DB2@TP34) - 01.99         Columns 00001 00072 
+ ****** ***************************** Top of Data ******************************
+ ==MSG> -CAUTION- Profile changed to NUMBER ON STD (from NUMBER OFF).           
+ ==MSG>           Data has valid standard numbers.                              
+ 000020        IDENTIFICATION DIVISION.                                         
+ 000040        PROGRAM-ID PGMDB223.                                             
+ 000050       **********************************************************        
+ 000060       *                                                        *        
+ 000070       *              PROGRAMA PARA SQL EMBEBIDO                *        
+ 000165       *         CHECK-POINT 28 BATCH ACT DB2 - TP 34           *        
+ 000166       *                       07-11-22                         *        
+ 000167       *                                                        *        
+ 000168       **********************************************************        
+ 000194        ENVIRONMENT DIVISION.                                            
+ 000195        CONFIGURATION SECTION.                                           
+ 000196        SPECIAL-NAMES.                                                   
+ 000197            DECIMAL-POINT IS COMMA.                                      
+ 000198                                                                         
+ 000199        INPUT-OUTPUT SECTION.                                            
+ 000200        FILE-CONTROL.                                                    
+ 000225        DATA DIVISION.                                                   
+ 000226        FILE SECTION.                                                    
+ 000406                                                                         
+ 000407       **************************************                            
+ 000408        WORKING-STORAGE SECTION.                                         
+ 000409       **************************************                            
+ 000410        77  FILLER        PIC X(26) VALUE '* INICIO WORKING-STORAGE *'.  
+ 000411                                                                         
+ 000412        77  FS-ENT           PIC XX    VALUE SPACES.                     
+ 000414        01  WS-FLAG-FIN      PIC X.                                      
+ 000415            88  WS-SI-PROCESO          VALUE ' '.                        
+ 000416            88  WS-FIN-PROCESO         VALUE 'F'.                        
+ 000528                                                                         
+ 000568        77  FILLER        PIC X(26)    VALUE '* VARIABLES SQL       *'.  
+ 000569        77  WS-SQLCODE    PIC +++999 USAGE DISPLAY VALUE ZEROS.          
+ 000570                                                                         
+ 000571        01  WS-STATUS     PIC X.                                         
+ 000572            88  WS-SI                  VALUE ' '.                        
+ 000574            88  WS-NO                  VALUE 'F'.                        
+ 000575                                                                         
+ 000576        01  WS-TIPDOC     PIC X(2)     VALUE SPACES.                     
+ 000577        01  WS-NRODOC     PIC S9(11)V USAGE COMP-3  VALUE ZEROS.         
+ 000578                                                                         
+ 000579             EXEC SQL                                                    
+ 000580               INCLUDE SQLCA                                             
+ 000581             END-EXEC.                                                   
+ 000582                                                                         
+ 000583             EXEC SQL                                                    
+ 000584               INCLUDE TB99CUEN                                          
+ 000585             END-EXEC.                                                   
+ 000586                                                                         
+ 000587             EXEC SQL                                                    
+ 000588               INCLUDE TB99CLIE                                          
+ 000590             END-EXEC.                                                   
+ 000591                                                                         
+ 000592             EXEC SQL                                                    
+ 000593               DECLARE CURSOR1 CURSOR FOR                                
+ 000594               SELECT A.TIPCUEN, A.NROCUEN, A.SUCUEN,                    
+ 000595                      B.NOMAPE,  B.TIPDOC,  B.NRODOC                     
+ 000596               FROM  ITPLZRY.TB99CUEN AS A                               
+ 000597                     RIGHT JOIN                                          
+ 000598                     ITPLZRY.TB99CLIE AS B                               
+ 000599                     ON  A.NROCLI = B.NROCLI                             
+ 000600                     WHERE A.NROCLI = 151                                
+ 000601                     AND   A.SUCUEN = 1                                  
+ 000602             END-EXEC.                                                   
+ 000603                                                                         
+ 000663        77  FILLER        PIC X(26) VALUE '* FINAL  WORKING-STORAGE *'.  
+ 000664                                                                         
+ 000665       ***************************************************************.  
+ 000666        PROCEDURE DIVISION.                                              
+ 000667       **************************************                            
+ 000668       *                                    *                            
+ 000669       *  CUERPO PRINCIPAL DEL PROGRAMA     *                            
+ 000670       *                                    *                            
+ 000671       **************************************                            
+ 000672        MAIN-PROGRAM.                                                    
+ 000673                                                                         
+ 000674            PERFORM 1000-I-INICIO   THRU                                 
+ 000675                    1000-F-INICIO.                                       
+ 000676                                                                         
+ 000677            PERFORM 2000-I-PROCESO  THRU                                 
+ 000678                    2000-F-PROCESO        UNTIL WS-FIN-PROCESO.          
+ 000679                                                                         
+ 000689            PERFORM 9999-I-FINAL    THRU                                 
+ 000690                    9999-F-FINAL.                                        
+ 000691                                                                         
+ 000692        F-MAIN-PROGRAM. GOBACK.                                          
+ 000693                                                                         
+ 000694       **************************************                            
+ 000695       *                                    *                            
+ 000696       *  CUERPO INICIO APERTURA ARCHIVOS   *                            
+ 000697       *                                    *                            
+ 000698       **************************************                            
+ 000699        1000-I-INICIO.                                                   
+ 000700                                                                         
+ 000710            SET WS-SI-PROCESO TO TRUE.                                   
+ 000724            SET WS-SI TO TRUE.                                           
+ 000725                                                                         
+ 000726            EXEC SQL                                                     
+ 000727              OPEN CURSOR1                                               
+ 000728            END-EXEC.                                                    
+ 000729                                                                         
+ 000730            IF SQLCODE NOT EQUAL ZEROS                                   
+ 000731               MOVE SQLCODE TO WS-SQLCODE                                
+ 000732               DISPLAY 'ERROR EN OPEN DE CURSOR: ' WS-SQLCODE            
+ 000733               MOVE 9999 TO RETURN-CODE                                  
+ 000734               SET WS-FIN-PROCESO TO TRUE                                
+ 000735            END-IF.                                                      
+ 000736                                                                         
+ 000786        1000-F-INICIO.   EXIT.                                           
+ 000787                                                                         
+ 000788       **************************************                            
+ 000789       *                                    *                            
+ 000790       *  CUERPO PRINCIPAL DEL PROGRAMA     *                            
+ 000791       *                                    *                            
+ 000792       **************************************                            
+ 000793        2000-I-PROCESO.                                                  
+ 000800                                                                         
+ 000841            EXEC SQL                                                     
+ 000842               FETCH CURSOR1 INTO                                        
+ 000843                   :DB-CU-TIPCUEN,                                       
+ 000844                   :DB-CU-NROCUEN,                                       
+ 000845                   :DB-CU-SUCUEN,                                        
+ 000846                   :DB-CL-NOMAPE,                                        
+ 000847                   :DB-CL-TIPDOC,                                        
+ 000848                   :DB-CL-NRODOC                                         
+ 000849            END-EXEC.                                                    
+ 000850                                                                         
+ 000851            EVALUATE TRUE                                                
+ 000852              WHEN SQLCODE EQUAL ZEROS                                   
+ 000854                 MOVE DB-CL-TIPDOC TO WS-TIPDOC                          
+ 000857                 MOVE DB-CL-NRODOC TO WS-NRODOC                          
+ 000859                 PERFORM 3000-UPDATE-CUEN THRU 3000-F-UPDATE-CUEN        
+ 000860              WHEN SQLCODE EQUAL +100                                    
+ 000861                 PERFORM 4000-UPDATE-CLI THRU 4000-F-UPDATE-CLI          
+ 000863                 SET WS-FIN-PROCESO TO TRUE                              
+ 000864              WHEN OTHER                                                 
+ 000865                 MOVE SQLCODE TO WS-SQLCODE                              
+ 000866                 DISPLAY 'ERROR FETCH CURSOR: '   WS-SQLCODE             
+ 000867                 SET WS-NO TO TRUE                                       
+ 000868             END-EVALUATE.                                               
+ 000869                                                                         
+ 000870        2000-F-PROCESO. EXIT.                                            
+ 001036                                                                         
+ 001037        3000-UPDATE-CUEN.                                                
+ 001038                                                                         
+ 001039             EXEC SQL                                                    
+ 001040                UPDATE ITPLZRY.TB99CUEN                                  
+ 001041                  SET NROCLI = 99                                        
+ 001042                  WHERE TIPCUEN = :DB-CU-TIPCUEN                         
+ 001043                  AND NROCUEN = :DB-CU-NROCUEN                           
+ 001044             END-EXEC.                                                   
+ 001045                                                                         
+ 001046             IF SQLCODE NOT EQUAL ZEROS                                  
+ 001047                 MOVE SQLCODE TO WS-SQLCODE                              
+ 001048                 DISPLAY 'ERROR EN UPDATE CUENTA = ' WS-SQLCODE          
+ 001049                 SET WS-FIN-PROCESO TO TRUE                              
+ 001050                 SET WS-NO TO TRUE                                       
+ 001052                 MOVE 9999 TO RETURN-CODE                                
+ 001053             END-IF.                                                     
+ 001054        3000-F-UPDATE-CUEN. EXIT.                                        
+ 001055                                                                         
+ 001056        4000-UPDATE-CLI.                                                 
+ 001057                                                                         
+ 001059             EXEC SQL                                                    
+ 001060                UPDATE ITPLZRY.TB99CLIE                                  
+ 001061                  SET NROCLI = 99                                        
+ 001062                  WHERE TIPDOC = :WS-TIPDOC AND                          
+ 001063                        NRODOC = :WS-NRODOC                              
+ 001064             END-EXEC.                                                   
+ 001065                                                                         
+ 001066             IF SQLCODE NOT EQUAL ZEROS                                  
+ 001067                 MOVE SQLCODE TO WS-SQLCODE                              
+ 001068                 DISPLAY 'ERROR EN UPDATE CLIENTE = ' WS-SQLCODE         
+ 001069                 SET WS-FIN-PROCESO TO TRUE                              
+ 001070                 SET WS-NO TO TRUE                                       
+ 001071                 MOVE 9999 TO RETURN-CODE                                
+ 001072             ELSE                                                        
+ 001074                 SET WS-FIN-PROCESO TO TRUE                              
+ 001075             END-IF.                                                     
+ 001076                                                                         
+ 001077        4000-F-UPDATE-CLI. EXIT.                                         
+ 001078                                                                         
+ 001079       **************************************                            
+ 001080       *                                    *                            
+ 001081       *  CUERPO FINAL CIERRE DE FILES      *                            
+ 001082       *                                    *                            
+ 001083       **************************************                            
+ 001084        9999-I-FINAL.                                                    
+ 001085                                                                         
+ 001086            EXEC SQL                                                     
+ 001087               CLOSE CURSOR1                                             
+ 001088            END-EXEC.                                                    
+ 001089                                                                         
+ 001090            IF SQLCODE NOT EQUAL ZEROS                                   
+ 001091               MOVE SQLCODE TO WS-SQLCODE                                
+ 001092               DISPLAY '* ERROR CLOSE CURSOR      = ' WS-SQLCODE         
+ 001093               MOVE 9999 TO RETURN-CODE                                  
+ 001094            END-IF.                                                      
+ 001095                                                                         
+ 001096            IF WS-NO                                                     
+ 001097               DISPLAY 'ROLLBACK REALIZADO'                              
+ 001098               EXEC SQL                                                  
+ 001099                   ROLLBACK                                              
+ 001100               END-EXEC                                                  
+ 001101                                                                         
+ 001102            ELSE                                                         
+ 001103               DISPLAY 'ACTUALIZACIONES CORRECTAS'                       
+ 001104               DISPLAY 'COMMIT REALIZADO'                                
+ 001105                                                                         
+ 001106               EXEC SQL                                                  
+ 001107                   COMMIT                                                
+ 001108               END-EXEC                                                  
+ 001109                                                                         
+ 001110            END-IF.                                                      
+ 001111                                                                         
+ 001112       *    EXEC SQL                                                     
+ 001113       *        ROLLBACK                                                 
+ 001114       *    END-EXEC.                                                    
+ 001115                                                                         
+ 001116        9999-F-FINAL.                                                    
+ 001120            EXIT.                                                        
+ 001200       *                                                                 
+ ****** **************************** Bottom of Data ****************************
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(DB2@TP34) - 01.99         Columns 00001 00072 
+ ****** **************************** Bottom of Data ****************************
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
