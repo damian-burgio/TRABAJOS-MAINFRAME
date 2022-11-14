@@ -1,0 +1,126 @@
+dburg @ LAPTOP-1Q579QTS 2022-11-11 17:08:38
+
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0023.CURSOS.FUENTE(JOBDB2XX) - 01.25         Columns 00001 00072 
+ ****** ***************************** Top of Data ******************************
+ 000001 //ALU00231 JOB CLASS=A,MSGCLASS=O,MSGLEVEL=(1,1),NOTIFY=&SYSUID,        
+ 000002 //             TIME=(,3)                                                
+ 000003 //JOBLIB  DD  DSN=DSN910.SDSNLOAD,DISP=SHR                              
+ 000004 //*       DD  DSN=ALU9999.CURSOS.PGMLIB,DISP=SHR                        
+ 000005 //********************************                                      
+ 000006 //STEP1    EXEC PGM=IDCAMS,COND=(8,LT)                                  
+ 000007 //SYSPRINT  DD SYSOUT=*                                                 
+ 000008 //SYSIN     DD *                                                        
+ 000009       DELETE   ALU0023.CURSOS.PRINT23                                   
+ 000010 //***************************************************************       
+ 000011 //* EJECUTAR STEP1 SOLO LA PRIMERA VEZ PARA DEFINIR SALIDA      *       
+ 000012 //***************************************************************       
+ 000013 //*                                                                     
+ 000014 //*STEP2    EXEC PGM=IEFBR14                                            
+ 000015 //*DD1      DD DSN=ALU0023.CURSOS.DB2.SALIDA,UNIT=SYSDA,VOL=SER=ZASYS1, 
+ 000016 //*            DCB=(LRECL=80,BLKSIZE=8000,RECFM=FB),                    
+ 000017 //*            SPACE=(TRK,(1,1),RLSE),DISP=(,CATLG)                     
+ 000018 //*                                                                     
+ 000019 //***************************************************************       
+ 000020 //*      EJECUTAR PROGRAMA COBOL CON SQL EMBEBIDO               *       
+ 000021 //***************************************************************       
+ 000022 //*                                                                     
+ 000023 //STEP3    EXEC PGM=IKJEFT01,DYNAMNBR=20,COND=(4,LT)                    
+ 000024 //SYSTSPRT DD SYSOUT=*                                                  
+ 000025 //*DDCLIEN  DD DSN=ALU0023.CURSOS.NOVECLIE.KSDS.VSAM,DISP=SHR           
+ 000026 //DDSALID  DD DSN=ALU0023.CURSOS.PRINT23,DISP=(NEW,CATLG,CATLG),        
+ 000027 //            UNIT=SYSDA,VOL=SER=ZASWO1,                                
+ 000028 //            DCB=(LRECL=133,BLKSIZE=13300,RECFM=FB),                   
+ 000029 //            SPACE=(TRK,(1,1),RLSE)                                    
+ 000030 //SYSOUT   DD SYSOUT=*                                                  
+ 000031 //SYSTSIN  DD *                                                         
+ 000032   DSN SYSTEM(DB9G)                                                      
+ 000033   RUN  PROGRAM(PGMDB223) PLAN(PGMDB223) +                               
+ 000034       LIB('ALU0023.CURSOS.PGMLIB')                                      
+ 000035   END                                                                   
+ 000036 //SYSPRINT DD SYSOUT=*                                                  
+ 000037 //SYSUDUMP DD SYSOUT=*                                                  
+ 000038 //SYSIN    DD *                                                         
+ 000039 //*                                                                     
+ 000040 //                                                                      
+ ****** **************************** Bottom of Data ****************************
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0023.CURSOS.FUENTE(JOBDB2XX) - 01.25         Columns 00001 00072 
+ ****** **************************** Bottom of Data ****************************
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 

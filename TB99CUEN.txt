@@ -1,0 +1,61 @@
+dburg @ LAPTOP-1Q579QTS 2022-11-12 05:38:39
+
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0023.CURSOS.COPYLIB(TB99CUEN) - 01.00        Columns 00001 00072 
+ ****** ***************************** Top of Data ******************************
+ ==MSG> -Warning- The UNDO command is not available until you change            
+ ==MSG>           your edit profile using the command RECOVERY ON.              
+ 000001       ******************************************************************
+ 000002       * DCLGEN TABLE(ITPLZRY.TB99CUEN)                                 *
+ 000003       *        LIBRARY(ALU0023.CURSOS.COPYLIB(TB99CUEN))               *
+ 000004       *        ACTION(REPLACE)                                         *
+ 000005       *        LANGUAGE(COBOL)                                         *
+ 000006       *        NAMES(DB-CUE)                                           *
+ 000007       *        STRUCTURE(DB-REG-CUEN)                                  *
+ 000008       *        QUOTE                                                   *
+ 000009       *        LABEL(YES)                                              *
+ 000010       *        COLSUFFIX(YES)                                          *
+ 000011       * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+ 000012       ******************************************************************
+ 000013            EXEC SQL DECLARE ITPLZRY.TB99CUEN TABLE                      
+ 000014            ( TIPCUEN                        DECIMAL(2, 0) NOT NULL,     
+ 000015              NROCUEN                        DECIMAL(5, 0) NOT NULL,     
+ 000016              SUCUEN                         DECIMAL(2, 0) NOT NULL,     
+ 000017              NROCLI                         DECIMAL(3, 0) NOT NULL,     
+ 000018              SALDO                          DECIMAL(9, 2) NOT NULL,     
+ 000019              FECSAL                         DATE NOT NULL               
+ 000020            ) END-EXEC.                                                  
+ 000021       ******************************************************************
+ 000022       * COBOL DECLARATION FOR TABLE ITPLZRY.TB99CUEN                   *
+ 000023       ******************************************************************
+ 000024        01  DB-REG-CUEN.                                                 
+ 000025       *    *************************************************************
+ 000026       *                       TIPCUEN                                   
+ 000027            10 DB-CUETIPCUEN        PIC S9(2)V USAGE COMP-3.             
+ 000028       *    *************************************************************
+ 000029       *                       NROCUEN                                   
+ 000030            10 DB-CUENROCUEN        PIC S9(5)V USAGE COMP-3.             
+ 000031       *    *************************************************************
+ 000032       *                       SUCUEN                                    
+ 000033            10 DB-CUESUCUEN         PIC S9(2)V USAGE COMP-3.             
+ 000034       *    *************************************************************
+ 000035       *                       NROCLI                                    
+ 000036            10 DB-CUENROCLI         PIC S9(3)V USAGE COMP-3.             
+ 000037       *    *************************************************************
+ 000038       *                       SALDO                                     
+ 000039            10 DB-CUESALDO          PIC S9(7)V9(2) USAGE COMP-3.         
+ 000040       *    *************************************************************
+ 000041       *                       FECSAL                                    
+ 000042            10 DB-CUEFECSAL         PIC X(10).                           
+ 000043       ******************************************************************
+ 000044       * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 6       *
+ 000045       ******************************************************************
+ ****** **************************** Bottom of Data ****************************
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                

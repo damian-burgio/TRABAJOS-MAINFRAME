@@ -1,0 +1,55 @@
+dburg @ LAPTOP-1Q579QTS 2022-11-12 05:37:56
+
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0023.CURSOS.COPYLIB(TB99CLIE) - 01.00        Columns 00001 00072 
+ ****** ***************************** Top of Data ******************************
+ ==MSG> -Warning- The UNDO command is not available until you change            
+ ==MSG>           your edit profile using the command RECOVERY ON.              
+ 000001       ******************************************************************
+ 000002       * DCLGEN TABLE(ITPLZRY.TB99CLIE)                                 *
+ 000003       *        LIBRARY(ALU0023.CURSOS.COPYLIB(TB99CLIE))               *
+ 000004       *        ACTION(REPLACE)                                         *
+ 000005       *        LANGUAGE(COBOL)                                         *
+ 000006       *        NAMES(DB-CLI)                                           *
+ 000007       *        STRUCTURE(DB-REG-CLIE)                                  *
+ 000008       *        QUOTE                                                   *
+ 000009       *        LABEL(YES)                                              *
+ 000010       *        COLSUFFIX(YES)                                          *
+ 000011       * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+ 000012       ******************************************************************
+ 000013            EXEC SQL DECLARE ITPLZRY.TB99CLIE TABLE                      
+ 000014            ( TIPDOC                         CHAR(2) NOT NULL,           
+ 000015              NRODOC                         DECIMAL(11, 0) NOT NULL,    
+ 000016              NROCLI                         DECIMAL(3, 0) NOT NULL,     
+ 000017              NOMAPE                         CHAR(30) NOT NULL,          
+ 000018              FECNAC                         DATE NOT NULL,              
+ 000019              SEXO                           CHAR(1) NOT NULL            
+ 000020            ) END-EXEC.                                                  
+ 000021       ******************************************************************
+ 000022       * COBOL DECLARATION FOR TABLE ITPLZRY.TB99CLIE                   *
+ 000023       ******************************************************************
+ 000024        01  DB-REG-CLIE.                                                 
+ 000025       *    *************************************************************
+ 000026       *                       TIPDOC                                    
+ 000027            10 DB-CLITIPDOC         PIC X(2).                            
+ 000028       *    *************************************************************
+ 000029       *                       NRODOC                                    
+ 000030            10 DB-CLINRODOC         PIC S9(11)V USAGE COMP-3.            
+ 000031       *    *************************************************************
+ 000032       *                       NROCLI                                    
+ 000033            10 DB-CLINROCLI         PIC S9(3)V USAGE COMP-3.             
+ 000034       *    *************************************************************
+ 000035       *                       NOMAPE                                    
+ 000036            10 DB-CLINOMAPE         PIC X(30).                           
+ 000037       *    *************************************************************
+ 000038       *                       FECNAC                                    
+ 000039            10 DB-CLIFECNAC         PIC X(10).                           
+ 000040       *    *************************************************************
+ 000041       *                       SEXO                                      
+ 000042            10 DB-CLISEXO           PIC X(1).                            
+ 000043       ******************************************************************
+ 000044       * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 6       *
+ 000045       ******************************************************************
+ ****** **************************** Bottom of Data ****************************

@@ -1,0 +1,286 @@
+dburg @ LAPTOP-1Q579QTS 2022-11-14 10:22:12
+
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0023.CURSOS.FUENTE(PGMCOR23) - 01.00         Columns 00001 00072 
+ ****** ***************************** Top of Data ******************************
+ 000100        IDENTIFICATION DIVISION.                                         
+ 000200         PROGRAM-ID PGMCOR15.                                            
+ 000300                                                                         
+ 000400       ***********************************************                   
+ 000500       *                                             *                   
+ 000600       *          CHECK-POINT 9 BATCH CORTE          *                   
+ 000700       *                                             *                   
+ 000800       ***********************************************                   
+ 000900                                                                         
+ 001200        ENVIRONMENT DIVISION.                                            
+ 001300        CONFIGURATION SECTION.                                           
+ 001400        SPECIAL-NAMES.                                                   
+ 001500            DECIMAL-POINT IS COMMA.                                      
+ 001600        INPUT-OUTPUT SECTION.                                            
+ 001700        FILE-CONTROL.                                                    
+ 001800              SELECT ENTRADA ASSIGN DDENTRA                              
+ 001900                     FILE STATUS IS FS-ENT.                              
+ 002000                                                                         
+ 002100              SELECT SALIDA  ASSIGN DDSALID                              
+ 002200                     FILE STATUS IS FS-SAL.                              
+ 002300                                                                         
+ 002400        DATA DIVISION.                                                   
+ 002500        FILE SECTION.                                                    
+ 002600        FD ENTRADA                                                       
+ 002700             BLOCK CONTAINS 0 RECORDS                                    
+ 002800             RECORDING MODE IS F.                                        
+ 002900                                                                         
+ 003000        01 REG-ENTRADA    PIC X(93).                                     
+ 003100                                                                         
+ 003200        FD SALIDA                                                        
+ 003300             BLOCK CONTAINS 0 RECORDS                                    
+ 003400             RECORDING MODE IS F.                                        
+ 003500                                                                         
+ 003600        01 REG-SALIDA     PIC X(132).                                    
+ 003700                                                                         
+ 003900        WORKING-STORAGE SECTION.                                         
+ 004000       **************************************                            
+ 004100                                                                         
+ 004300                                                                         
+ 004400        77  FS-ENT     PIC XX    VALUE SPACES.                           
+ 004500        77  FS-SAL     PIC XX    VALUE SPACES.                           
+ 004600                                                                         
+ 004700        77  WS-SUC-NRO-ANT  PIC 9(03) VALUE ZEROS.                       
+ 004800        77  WS-SUC-CANT     PIC 9(03) VALUE ZEROS.                       
+ 004900        77  WS-SALDOS-ACUM  PIC S9(11)V99 VALUE ZEROS.                   
+ 005000        77  WS-SALDOS-TOTAL PIC S9(11)V99 VALUE ZEROS.                   
+ 005100        77  WS-SUC-TOTAL    PIC 9(03) VALUE ZEROS.                       
+ 005200                                                                         
+ 005300        01 WS-REG-ENTRADA.                                               
+ 005400           COPY CPSUCUR.                                                 
+ 005500                                                                         
+ 005600           COPY CPLISTA.                                                 
+ 005700                                                                         
+ 005701        01  WS-REG-SUBTOTALES.                                           
+ 005702            03  WS-S-SUC-NRO        PIC ZZ9      VALUE ZEROS.            
+ 005703            03  FILLER              PIC X(14)    VALUE 'TOT. CUENTAS= '. 
+ 005704            03  WS-S-TOT-CUEN       PIC ZZ.ZZZ.ZZZ.ZZ9   VALUE ZEROS.    
+ 005705            03  FILLER              PIC X(73)    VALUE SPACES.           
+ 005706            03  FILLER              PIC X(13)    VALUE 'TOT. SALDOS= '.  
+ 005707            03  WS-S-TOT-SAL        PIC -ZZ.ZZZ.ZZ9,99   VALUE ZEROS.    
+ 005708            03  FILLER              PIC X     VALUE SPACES.              
+ 005709                                                                         
+ 005710        01  WS-REG-TOTAL-FINAL.                                          
+ 005711            03  FILLER              PIC X(17)  VALUE '   TOT. CUENTAS= '.
+ 005712            03  WS-TF-TOT-CUEN      PIC ZZ.ZZZ.ZZZ.ZZ9   VALUE ZEROS.    
+ 005713            03  FILLER              PIC X(63)  VALUE SPACES.             
+ 005714            03  FILLER         PIC X(23) VALUE 'TOTAL FINAL DE SALDOS= '.
+ 005715            03  WS-TF-TOT-SAL       PIC -ZZ.ZZZ.ZZ9,99      VALUE ZEROS. 
+ 005716            03  FILLER              PIC X   VALUE SPACES.                
+ 005720                                                                         
+ 005800        01  WS-STATUS-FIN    PIC X.                                      
+ 005900            88  WS-FIN-LECTURA         VALUE 'Y'.                        
+ 006000            88  WS-NO-FIN-LECTURA      VALUE 'N'.                        
+ 006100                                                                         
+ 006600                                                                         
+ 006700       ***************************************************************.  
+ 006800                                                                         
+ 006900        PROCEDURE DIVISION.                                              
+ 007000                                                                         
+ 007100       **************************************                            
+ 007200       *                                    *                            
+ 007300       *  CUERPO PRINCIPAL DEL PROGRAMA     *                            
+ 007400       *                                    *                            
+ 007500       **************************************                            
+ 007600        MAIN-PROGRAM-INICIO.                                             
+ 007700                                                                         
+ 007800                                                                         
+ 007900            PERFORM 1000-I-INICIO  THRU 1000-F-INICIO.                   
+ 008000                                                                         
+ 008100            PERFORM 2000-I-PROCESO THRU  2000-F-PROCESO                  
+ 008200                                   UNTIL WS-FIN-LECTURA.                 
+ 008300                                                                         
+ 008400            PERFORM 2500-ULTIMO-REGISTRO                                 
+ 008500                                   THRU  2500-F-ULTIMO-REGISTRO.         
+ 008600                                                                         
+ 008700            PERFORM 9999-I-FINAL     THRU  9999-I-FINAL.                 
+ 008800                                                                         
+ 008900        MAIN-PROGRAM-FINAL. GOBACK.                                      
+ 009000                                                                         
+ 009100       **************************************                            
+ 009200        1000-I-INICIO.                                                   
+ 009300       **************************************                            
+ 009400                                                                         
+ 009500            SET WS-NO-FIN-LECTURA TO TRUE.                               
+ 009600                                                                         
+ 009700            OPEN INPUT  ENTRADA.                                         
+ 009800            IF FS-ENT IS NOT EQUAL '00'                                  
+ 009900               DISPLAY '* ERROR EN OPEN ENTRADA INICIO = ' FS-ENT        
+ 010000               SET  WS-FIN-LECTURA TO TRUE                               
+ 010100            END-IF.                                                      
+ 010200                                                                         
+ 010300            OPEN OUTPUT SALIDA.                                          
+ 010400            IF FS-SAL IS NOT EQUAL '00'                                  
+ 010500               DISPLAY '* ERROR EN OPEN SALIDA INICIO  = ' FS-SAL        
+ 010600               SET  WS-FIN-LECTURA TO TRUE                               
+ 010700            END-IF.                                                      
+ 010800                                                                         
+ 010900       * LEER EL PRIMER REGISTRO FUERA DEL LOOP PRINCIPAL                
+ 011100            READ ENTRADA INTO WS-REG-ENTRADA                             
+ 011200                                                                         
+ 011300            EVALUATE FS-ENT                                              
+ 011400              WHEN '00'                                                  
+ 011710                  MOVE WS-SUC-NRO TO WS-SUC-NRO-ANT                      
+ 011800                  PERFORM 3000-GRABACION THRU  3000-F-GRABACION          
+ 012300                  ADD WS-SUC-SALDO TO WS-SALDOS-ACUM                     
+ 012400                  ADD WS-SUC-SALDO TO WS-SALDOS-TOTAL                    
+ 012500                  ADD 1 TO WS-SUC-CANT                                   
+ 012600                                                                         
+ 012800              WHEN '10'                                                  
+ 012900               DISPLAY '* ARCHIVO ENTRADA VACÍO EN INICIO' FS-ENT        
+ 013000               SET WS-FIN-LECTURA TO TRUE                                
+ 013100                                                                         
+ 013200              WHEN OTHER                                                 
+ 013300               DISPLAY '*ERROR EN LECTURA ENTRADA INICIO : ' FS-ENT      
+ 013400               SET WS-FIN-LECTURA TO TRUE                                
+ 013500                                                                         
+ 013600            END-EVALUATE.                                                
+ 013700                                                                         
+ 013800        1000-F-INICIO. EXIT.                                             
+ 013900                                                                         
+ 014000       **************************************                            
+ 014100        2000-I-PROCESO.                                                  
+ 014200       **************************************                            
+ 014300                                                                         
+ 014400            READ ENTRADA INTO WS-REG-ENTRADA                             
+ 014500                                                                         
+ 014600            EVALUATE FS-ENT                                              
+ 014700                                                                         
+ 014800              WHEN '00'                                                  
+ 014820                                                                         
+ 014900                PERFORM 2200-SEGUIR-PROCESO THRU 2200-F-SEGUIR-PROCESO   
+ 015000                                                                         
+ 015100              WHEN '10'                                                  
+ 015200               SET WS-FIN-LECTURA TO TRUE                                
+ 015300                                                                         
+ 015400              WHEN OTHER                                                 
+ 015500               DISPLAY '* ERROR EN LECTURA ENTRADA = ' FS-ENT            
+ 015600               SET WS-FIN-LECTURA TO TRUE                                
+ 015700                                                                         
+ 015800            END-EVALUATE.                                                
+ 015900                                                                         
+ 016000                                                                         
+ 016100        2000-F-PROCESO. EXIT.                                            
+ 016200                                                                         
+ 016300       **************************************                            
+ 016400        2200-SEGUIR-PROCESO.                                             
+ 016500       **************************************                            
+ 016600                                                                         
+ 016620            ADD WS-SUC-SALDO TO WS-SALDOS-TOTAL                          
+ 016700            IF WS-SUC-NRO EQUAL WS-SUC-NRO-ANT                           
+ 016800             ADD WS-SUC-SALDO TO WS-SALDOS-ACUM                          
+ 016900             ADD 1 TO WS-SUC-CANT                                        
+ 017000                                                                         
+ 017100            ELSE                                                         
+ 017200             PERFORM 4000-CORTE-CONTROL THRU 4000-F-CORTE-CONTROL        
+ 017300                                                                         
+ 017400            END-IF.                                                      
+ 017500                                                                         
+ 017700                                                                         
+ 017800            PERFORM 3000-GRABACION   THRU  3000-F-GRABACION.             
+ 017900                                                                         
+ 018000        2200-F-SEGUIR-PROCESO. EXIT.                                     
+ 018100                                                                         
+ 024800                                                                         
+ 024900                                                                         
+ 025000        2500-ULTIMO-REGISTRO.                                            
+ 025700                                                                         
+ 025900            PERFORM 4000-CORTE-CONTROL THRU 4000-F-CORTE-CONTROL         
+ 026000                                                                         
+ 026200                                                                         
+ 026210            MOVE WS-SUC-TOTAL TO WS-TF-TOT-CUEN                          
+ 026220            MOVE WS-SALDOS-TOTAL TO WS-TF-TOT-SAL                        
+ 026230            WRITE REG-SALIDA FROM WS-REG-TOTAL-FINAL                     
+ 027100               IF FS-SAL IS NOT EQUAL '00'                               
+ 027200                 DISPLAY '* ERROR EN WRITE LAST SALIDA  = ' FS-SAL       
+ 027300               END-IF.                                                   
+ 027400                                                                         
+ 027500        2500-F-ULTIMO-REGISTRO. EXIT.                                    
+ 027600                                                                         
+ 027610       ************  RUTINA DE GRABACION  *************                  
+ 027620        3000-GRABACION.                                                  
+ 027630       ************************************************                  
+ 027640                                                                         
+ 027670            MOVE WS-SUC-NRO TO WS-LIS-NRO                                
+ 027680            MOVE WS-SUC-TIP-DOC TO WS-LIS-TIP-DOC                        
+ 027690            MOVE WS-SUC-NRO-DOC TO WS-LIS-NRO-DOC                        
+ 027691            MOVE WS-SUC-NOMAPE TO WS-LIS-NOMAPE                          
+ 027692            MOVE WS-SUC-EST-CIV TO WS-LIS-EST-CIV                        
+ 027693            MOVE WS-SUC-CTA TO WS-LIS-CTA                                
+ 027694            MOVE WS-SUC-SALDO TO WS-LIS-SALDO                            
+ 027695            EVALUATE WS-SUC-SEXO                                         
+ 027696             WHEN 'F'                                                    
+ 027697                MOVE 'FEMENINO' TO WS-LIS-SEXO                           
+ 027698             WHEN 'M'                                                    
+ 027699                MOVE 'MASCULINO' TO WS-LIS-SEXO                          
+ 027700             WHEN 'O'                                                    
+ 027701                MOVE 'OTRO' TO WS-LIS-SEXO                               
+ 027702             WHEN OTHER                                                  
+ 027703                DISPLAY 'ERROR MOVE SEXO'                                
+ 027704                SET WS-FIN-LECTURA TO TRUE                               
+ 027705            END-EVALUATE.                                                
+ 027706                                                                         
+ 027707                                                                         
+ 027708            WRITE REG-SALIDA FROM WS-REG-LISTA                           
+ 027709                                                                         
+ 027710            IF FS-SAL IS NOT EQUAL '00'                                  
+ 027711                 DISPLAY '* ERROR EN WRITE SALIDA  = ' FS-SAL            
+ 027712                 SET WS-FIN-LECTURA TO TRUE                              
+ 027713            END-IF.                                                      
+ 027714                                                                         
+ 027715        3000-F-GRABACION. EXIT.                                          
+ 027716                                                                         
+ 027717       *************  RUTINA DE CORTE DE CONTROL  *********              
+ 027718        4000-CORTE-CONTROL.                                              
+ 027719       ****************************************************              
+ 027720                                                                         
+ 027722                                                                         
+ 027723            ADD WS-SUC-CANT TO WS-SUC-TOTAL                              
+ 027724            MOVE WS-SUC-NRO-ANT TO WS-S-SUC-NRO                          
+ 027725            MOVE WS-SUC-CANT TO WS-S-TOT-CUEN                            
+ 027726            MOVE WS-SALDOS-ACUM TO WS-S-TOT-SAL                          
+ 027727                                                                         
+ 027728            WRITE REG-SALIDA FROM WS-REG-SUBTOTALES                      
+ 027729                                                                         
+ 027742            IF FS-SAL IS NOT EQUAL '00'                                  
+ 027743                 DISPLAY '* ERROR EN WRITE SALIDA CC  = '                
+ 027744                                             FS-SAL                      
+ 027745                 SET WS-FIN-LECTURA TO TRUE                              
+ 027746            END-IF.                                                      
+ 027747                                                                         
+ 027748                                                                         
+ 027749            MOVE WS-SUC-NRO TO WS-SUC-NRO-ANT                            
+ 027750            MOVE 1 TO WS-SUC-CANT                                        
+ 027751            MOVE WS-SUC-SALDO TO WS-SALDOS-ACUM.                         
+ 027752                                                                         
+ 027753        4000-F-CORTE-CONTROL. EXIT.                                      
+ 027754                                                                         
+ 027760        9999-I-FINAL.                                                    
+ 027800                                                                         
+ 027900            CLOSE ENTRADA                                                
+ 028000               IF FS-ENT IS NOT EQUAL '00'                               
+ 028100                 DISPLAY '* ERROR EN CLOSE ENTRADA = '                   
+ 028200                                             FS-ENT                      
+ 028300                 MOVE 9999 TO RETURN-CODE                                
+ 028400                 SET WS-FIN-LECTURA TO TRUE                              
+ 028500              END-IF.                                                    
+ 028600                                                                         
+ 028700            CLOSE  SALIDA                                                
+ 028800               IF FS-SAL IS NOT EQUAL '00'                               
+ 028900                 DISPLAY '* ERROR EN CLOSE SALIDA   ='                   
+ 029000                                             FS-SAL                      
+ 029100                 MOVE 9999 TO RETURN-CODE                                
+ 029200                 SET WS-FIN-LECTURA TO TRUE                              
+ 029300            END-IF.                                                      
+ 029400                                                                         
+ 029500        9999-F-FINAL.  EXIT.                                             
+ 029600                                                                         
+ 029700       *                                                                 
+ ****** **************************** Bottom of Data ****************************
+                                                                       
