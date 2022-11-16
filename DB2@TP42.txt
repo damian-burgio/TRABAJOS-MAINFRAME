@@ -1,0 +1,661 @@
+dburg @ LAPTOP-1Q579QTS 2022-11-16 13:02:29
+
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ ****** ***************************** Top of Data ******************************
+ 000200        IDENTIFICATION DIVISION.                                         
+ 000300       *------------------------*                                        
+ 000400        PROGRAM-ID. PGMDB215.                                            
+ 000500       ********************************************************          
+ 000510       *                                                      *          
+ 000511       *           TP 42 - CHECK-POINT 33 BATCH DB2           *          
+ 000520       *                     16-11-2022                       *          
+ 000530       *                                                      *          
+ 000540       ********************************************************          
+ 000600        ENVIRONMENT DIVISION.                                            
+ 000700       *---------------------*                                           
+ 000710        CONFIGURATION SECTION.                                           
+ 000720        SPECIAL-NAMES.                                                   
+ 000730            DECIMAL-POINT IS COMMA.                                      
+ 000800        INPUT-OUTPUT SECTION.                                            
+ 000900        FILE-CONTROL.                                                    
+ 001000            SELECT SALIDA ASSIGN TO DDSALID                              
+ 001200            FILE STATUS IS FS-SAL.                                       
+ 001300                                                                         
+ 001500        DATA DIVISION.                                                   
+ 001800        FILE SECTION.                                                    
+ 001900                                                                         
+ 002000        FD  SALIDA                                                       
+ 002100            BLOCK CONTAINS  0 RECORDS                                    
+ 002200            RECORDING MODE IS F.                                         
+ 002300                                                                         
+ 002400        01  REG-SALIDA         PIC X(132).                               
+ 002500                                                                         
+ 002600        WORKING-STORAGE SECTION.                                         
+ 002700       *------------------------*                                        
+ 002710                                                                         
+ 002720        01  FS-SAL             PIC X(02).                                
+ 002721            88  FS-OK                      VALUE '00'.                   
+ 002722            88  FS-EOF                     VALUE '10'.                   
+ 002723            88  FS-NOK                     VALUE '01' THRU '09'          
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 002724                                                 '11' THRU '99'.         
+ 002730                                                                         
+ 002800        01  FS-SQL             PIC X(02).                                
+ 002900            88  SQL-OK                     VALUE '00'.                   
+ 003000            88  SQL-EOF                    VALUE '10'.                   
+ 003100            88  SQL-NOK                    VALUE '01' THRU '09'          
+ 003200                                                 '11' THRU '99'.         
+ 003300                                                                         
+ 003400        77  WS-SQLCODE         PIC +++999 USAGE DISPLAY VALUE ZEROS.     
+ 003401                                                                         
+ 003402            EXEC SQL                                                     
+ 003403              INCLUDE SQLCA                                              
+ 003404            END-EXEC.                                                    
+ 003405                                                                         
+ 003406            EXEC SQL                                                     
+ 003407              INCLUDE TBCURCTA                                           
+ 003408            END-EXEC.                                                    
+ 003409                                                                         
+ 003410            EXEC SQL                                                     
+ 003411              INCLUDE TBCURCLI                                           
+ 003412            END-EXEC.                                                    
+ 003413                                                                         
+ 003414            EXEC SQL                                                     
+ 003415              DECLARE CURSOR1 CURSOR FOR                                 
+ 003420              SELECT A.TIPCUEN,                                          
+ 003440                     A.NROCUEN,                                          
+ 003441                     A.SUCUEN,                                           
+ 003450                     A.NROCLI,                                           
+ 003460                     A.SALDO,                                            
+ 003471                     B.TIPDOC,                                           
+ 003472                     B.NRODOC,                                           
+ 003473                     B.NROCLI,                                           
+ 003474                     B.NOMAPE                                            
+ 003475              FROM ITPARUT.TBCURCTA A                                    
+ 003476                INNER JOIN ITPARUT.TBCURCLI B                            
+ 003477                ON A.NROCLI = B.NROCLI                                   
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 003478                ORDER BY A.SUCUEN ASC,                                   
+ 003479                         A.TIPCUEN ASC                                   
+ 003480            END-EXEC.                                                    
+ 003490                                                                         
+ 003500       * VARIABLES *                                                     
+ 003700        01  WS-SUCUEN-ANT      PIC 99.                                   
+ 003800        01  WS-TIPCUEN-ANT     PIC 99.                                   
+ 003810                                                                         
+ 003900       * ACUMULADORES *                                                  
+ 004000        01  AC-SALCUEN         PIC S9(7)V9(2) USAGE COMP-3  VALUE ZEROS. 
+ 004100        01  AC-SALSUC          PIC S9(7)V9(2) USAGE COMP-3  VALUE ZEROS. 
+ 004200        01  AC-SALCLI          PIC S9(7)V9(2) USAGE COMP-3  VALUE ZEROS. 
+ 004210                                                                         
+ 004300       * CONTADORES *                                                    
+ 004600        01  CN-TOT-CLI         PIC 9(03)   VALUE ZEROS.                  
+ 004601        01  CN-TOT-SUC         PIC 9(03)   VALUE ZEROS.                  
+ 004602        01  CN-TOT-TIPO        PIC 9(03)   VALUE ZEROS.                  
+ 004606        77  CN-LINEA           PIC 9(02)   VALUE 63.                     
+ 004607        77  CN-PAGINA          PIC 9(02)   VALUE ZEROS.                  
+ 004610                                                                         
+ 004620       * IMPRESION *                                                     
+ 004700        01  WS-SEPARADOR       PIC X(132)  VALUE ALL '*'.                
+ 004710        01  WS-SEPARADOR2      PIC X(132)  VALUE SPACES.                 
+ 004800                                                                         
+ 004900        01  WS-TITULO.                                                   
+ 005000            03  FILLER        PIC X(11)    VALUE 'TIPO CUENTA'.          
+ 005001            03  FILLER        PIC X(2)     VALUE SPACES.                 
+ 005010            03  FILLER        PIC X(10)    VALUE 'NRO CUENTA'.           
+ 005011            03  FILLER        PIC X(2)     VALUE SPACES.                 
+ 005020            03  FILLER        PIC X(30)    VALUE 'NOMBRE Y APELLIDO'.    
+ 005021            03  FILLER        PIC X(2)     VALUE SPACES.                 
+ 005030            03  FILLER        PIC X(11)    VALUE 'NRO CLIENTE'.          
+ 005031            03  FILLER        PIC X(2)     VALUE SPACES.                 
+ 005040            03  FILLER        PIC X(5)     VALUE 'SALDO'.                
+ 005041            03  FILLER        PIC X(57)    VALUE SPACES.                 
+ 005080                                                                         
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 005090        01  WS-REG-CLIENTE.                                              
+ 005091            03  FILLER        PIC X(4)     VALUE SPACES.                 
+ 005092            03  WS-TIPCUEN    PIC 99       VALUE ZEROS.                  
+ 005093            03  FILLER        PIC X(10)    VALUE SPACES.                 
+ 005094            03  WS-NROCUEN    PIC ZZZZ9    VALUE ZEROS.                  
+ 005095            03  FILLER        PIC X(4)     VALUE SPACES.                 
+ 005096            03  WS-NOMYAPEL   PIC X(30)    VALUE SPACES.                 
+ 005097            03  FILLER        PIC X(6)     VALUE SPACES.                 
+ 005098            03  WS-NROCLI     PIC ZZ9      VALUE ZEROS.                  
+ 005099            03  FILLER        PIC X(6)     VALUE SPACES.                 
+ 005100            03  WS-SALDO      PIC ZZZ.ZZZ.ZZZ.ZZZ.ZZ9,99- VALUE ZEROS.   
+ 005101                                                                         
+ 005102        01  WS-TIT-SUCURSAL.                                             
+ 005103            03  FILLER        PIC X        VALUE SPACES.                 
+ 005104            03  FILLER        PIC X(2)     VALUE '- '.                   
+ 005105            03  FILLER        PIC X(9)     VALUE 'SUCURSAL '.            
+ 005106            03  WS-SUCNAME    PIC Z9       VALUE SPACES.                 
+ 005107                                                                         
+ 005108        01  WS-TOT-CUENTA.                                               
+ 005109            03  FILLER        PIC X(10)    VALUE SPACES.                 
+ 005110            03  FILLER        PIC X(25)    VALUE                         
+ 005111                                     'CANTIDAD DE CUENTAS TIPO '.        
+ 005112            03  WS-CUETIPO    PIC XX       VALUE SPACES.                 
+ 005113            03  FILLER        PIC X(3)     VALUE ' = '.                  
+ 005114            03  WS-CUETOTAL   PIC Z9       VALUE SPACES.                 
+ 005115            03  FILLER        PIC X(13)    VALUE SPACES.                 
+ 005116            03  FILLER        PIC X(15)    VALUE 'TOTAL SALDOS = '.      
+ 005117            03  WS-SUCSALDO   PIC ZZZ.ZZZ.ZZZ.ZZZ.999,99-.               
+ 005118                                                                         
+ 005119        01  WS-TOT-SUCURSAL.                                             
+ 005120            03  FILLER        PIC X(10)    VALUE SPACES.                 
+ 005121            03  FILLER        PIC X(32)    VALUE                         
+ 005122                                     'CANTIDAD DE CUENTAS EN SUCURSAL '. 
+ 005123            03  WS-SUCNAME2   PIC Z9       VALUE SPACES.                 
+ 005124            03  FILLER        PIC X(3)     VALUE ' = '.                  
+ 005125            03  WS-SUCTOTAL   PIC Z9       VALUE SPACES.                 
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 005126            03  FILLER        PIC X(6)     VALUE SPACES.                 
+ 005127            03  FILLER        PIC X(15)    VALUE 'TOTAL SALDOS = '.      
+ 005128            03  WS-SUCSALDO2  PIC ZZZ.ZZZ.ZZZ.ZZZ.999,99-.               
+ 005129                                                                         
+ 005130        01  WS-TOT-CLIENTE.                                              
+ 005131            03  FILLER        PIC X(10)    VALUE SPACES.                 
+ 005132            03  FILLER        PIC X(34)    VALUE                         
+ 005133                                  'CANTIDAD DE CUENTAS DEL CLIENTE = '.  
+ 005134            03  WS-CLITOTAL   PIC Z9       VALUE SPACES.                 
+ 005135            03  FILLER        PIC X(9)     VALUE SPACES.                 
+ 005136            03  FILLER        PIC X(15)    VALUE 'TOTAL SALDOS = '.      
+ 005137            03  WS-SUCSALDO3  PIC ZZZ.ZZZ.ZZZ.ZZZ.999,99-.               
+ 005138                                                                         
+ 005139                                                                         
+ 005140        PROCEDURE DIVISION.                                              
+ 005200       *-------------------*                                             
+ 005300       **************************************                            
+ 005400       *  CUERPO PRINCIPAL DEL PROGRAMA     *                            
+ 005500       **************************************                            
+ 005700        MAIN-PROGRAM.                                                    
+ 005800       *-------------*                                                   
+ 005900                                                                         
+ 006000            PERFORM 1000-I-INICIO                                        
+ 006100               THRU 1000-F-INICIO                                        
+ 006200                                                                         
+ 006300            PERFORM 2000-I-PROCESO                                       
+ 006400               THRU 2000-F-PROCESO                                       
+ 006500                                                                         
+ 006600            PERFORM 9999-I-FINAL                                         
+ 006700               THRU 9999-F-FINAL                                         
+ 006800                                                                         
+ 006900            GOBACK                                                       
+ 007000            .                                                            
+ 007100       **************************************                            
+ 007200       *  CUERPO INICIO APERTURA ARCHIVOS   *                            
+ 007300       **************************************                            
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 007500        1000-I-INICIO.                                                   
+ 007600       *--------------*                                                  
+ 007610            DISPLAY 'INICIO'                                             
+ 007700            OPEN OUTPUT SALIDA                                           
+ 007800                                                                         
+ 007900            IF FS-SAL IS NOT EQUAL '00'                                  
+ 008000               DISPLAY '* ERROR EN OPEN SALIDA = ' FS-SAL                
+ 008100               MOVE 9999 TO RETURN-CODE                                  
+ 008200            END-IF.                                                      
+ 008201                                                                         
+ 008210            EXEC SQL                                                     
+ 008220               OPEN CURSOR1                                              
+ 008230            END-EXEC.                                                    
+ 008240            DISPLAY 'ABRIO CURSOR'                                       
+ 008250            IF SQLCODE NOT EQUAL ZEROS                                   
+ 008260               MOVE SQLCODE   TO WS-SQLCODE                              
+ 008270               DISPLAY '* ERROR OPEN CURSOR 1    = ' WS-SQLCODE          
+ 008280               MOVE '99' TO FS-SQL                                       
+ 008290            ELSE                                                         
+ 008300            DISPLAY 'PRIMER FETCH'                                       
+ 008400               EXEC SQL                                                  
+ 008410                  FETCH CURSOR1                                          
+ 008420                      INTO :DB-CU-TIPCUEN,                               
+ 008421                           :DB-CU-NROCUEN,                               
+ 008422                           :DB-CU-SUCUEN,                                
+ 008423                           :DB-CU-NROCLI,                                
+ 008424                           :DB-CU-SALDO,                                 
+ 008425                           :DB-CL-TIPDOC,                                
+ 008426                           :DB-CL-NRODOC,                                
+ 008427                           :DB-CL-NROCLI,                                
+ 008428                           :DB-CL-NOMAPE                                 
+ 008460               END-EXEC                                                  
+ 008470                                                                         
+ 008480               EVALUATE TRUE                                             
+ 008490                  WHEN SQLCODE EQUAL ZEROS                               
+ 008492                     MOVE '00' TO FS-SQL                                 
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 008495                  WHEN SQLCODE EQUAL +100                                
+ 008496                     MOVE '10' TO FS-SQL                                 
+ 008497                  WHEN OTHER                                             
+ 008498                     MOVE SQLCODE TO WS-SQLCODE                          
+ 008499                     DISPLAY 'ERROR FETCH CURSOR: ' WS-SQLCODE           
+ 008500                     MOVE '99' TO FS-SQL                                 
+ 008510               END-EVALUATE                                              
+ 008511            END-IF                                                       
+ 008520            .                                                            
+ 008600        1000-F-INICIO.                                                   
+ 008700            EXIT.                                                        
+ 008800                                                                         
+ 008900       **************************************                            
+ 009000       *  CUERPO PRINCIPAL DE PROCESOS      *                            
+ 009100       **************************************                            
+ 009300        2000-I-PROCESO.                                                  
+ 009400       *---------------*                                                 
+ 009600            DISPLAY '2000 PROCESO'                                       
+ 010000            PERFORM UNTIL SQL-EOF OR SQL-NOK                             
+ 010100                       OR FS-EOF OR FS-NOK                               
+ 010200                                                                         
+ 011300                                                                         
+ 011400               MOVE DB-CU-SUCUEN TO WS-SUCUEN-ANT                        
+ 011700               MOVE 0 TO CN-TOT-SUC                                      
+ 011701               MOVE 0 TO AC-SALSUC                                       
+ 011702               PERFORM 4100-IMPRIMIR-TIT-SUC                             
+ 011703                          THRU 4100-F-IMPRIMIR-TIT-SUC                   
+ 011710                                                                         
+ 011720       * CORTE A *                                                       
+ 011800               PERFORM UNTIL SQL-EOF OR SQL-NOK                          
+ 012000                          OR FS-EOF OR FS-NOK                            
+ 012200                          OR DB-CU-SUCUEN NOT = WS-SUCUEN-ANT            
+ 012300                                                                         
+ 012301                   MOVE DB-CU-TIPCUEN TO WS-TIPCUEN-ANT                  
+ 012302                   MOVE 0 TO CN-TOT-TIPO                                 
+ 012303                   MOVE 0 TO AC-SALCUEN                                  
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 012305                                                                         
+ 012306       * CORTE B *                                                       
+ 012310                   PERFORM UNTIL SQL-EOF OR SQL-NOK                      
+ 012320                              OR FS-EOF OR FS-NOK                        
+ 012322                              OR DB-CU-SUCUEN  NOT = WS-SUCUEN-ANT       
+ 012330                              OR DB-CU-TIPCUEN NOT = WS-TIPCUEN-ANT      
+ 012340                                                                         
+ 012400                     ADD 1 TO CN-TOT-TIPO                                
+ 012500                     ADD DB-CU-SALDO TO AC-SALCUEN                       
+ 012600                                                                         
+ 012700                     PERFORM 3000-IMPRIMIR-CUENTA                        
+ 012800                             THRU 3000-F-IMPRIMIR-CUENTA                 
+ 012801                                                                         
+ 012810                     EXEC SQL                                            
+ 012820                        FETCH CURSOR1                                    
+ 012830                            INTO :DB-CU-TIPCUEN,                         
+ 012840                                 :DB-CU-NROCUEN,                         
+ 012841                                 :DB-CU-SUCUEN,                          
+ 012842                                 :DB-CU-NROCLI,                          
+ 012843                                 :DB-CU-SALDO,                           
+ 012844                                 :DB-CL-TIPDOC,                          
+ 012845                                 :DB-CL-NRODOC,                          
+ 012846                                 :DB-CL-NROCLI,                          
+ 012847                                 :DB-CL-NOMAPE                           
+ 012848                     END-EXEC                                            
+ 012860                                                                         
+ 012870                     EVALUATE TRUE                                       
+ 012880                        WHEN SQLCODE EQUAL ZEROS                         
+ 012890                           CONTINUE                                      
+ 012892                        WHEN SQLCODE EQUAL +100                          
+ 012893                           MOVE '10' TO FS-SQL                           
+ 012894                        WHEN OTHER                                       
+ 012895                           MOVE SQLCODE TO WS-SQLCODE                    
+ 012896                           DISPLAY 'ERROR FETCH CURSOR: ' WS-SQLCODE     
+ 012897                           MOVE '99' TO FS-SQL                           
+ 012898                     END-EVALUATE                                        
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 012900                   END-PERFORM                                           
+ 012910                                                                         
+ 012920                   PERFORM 3100-IMPRIMIR-CORTE-TIPO                      
+ 012930                           THRU 3100-F-IMPRIMIR-CORTE-TIPO               
+ 012940                   ADD CN-TOT-TIPO TO CN-TOT-SUC                         
+ 012950                   ADD AC-SALCUEN TO AC-SALSUC                           
+ 012960                                                                         
+ 013000               END-PERFORM                                               
+ 013100                                                                         
+ 013300               PERFORM 3200-IMPRIMIR-CORTE-SUC                           
+ 013400                       THRU 3200-F-IMPRIMIR-CORTE-SUC                    
+ 013500               ADD CN-TOT-SUC TO CN-TOT-CLI                              
+ 013600               ADD AC-SALSUC  TO AC-SALCLI                               
+ 014000                                                                         
+ 014800            END-PERFORM                                                  
+ 015500            .                                                            
+ 015700        2000-F-PROCESO.                                                  
+ 015900            EXIT.                                                        
+ 016000                                                                         
+ 016100                                                                         
+ 016200        3000-IMPRIMIR-CUENTA.                                            
+ 016201       *---------------------*                                           
+ 016202                                                                         
+ 016203            IF CN-LINEA GREATER 59                                       
+ 016204                PERFORM 4000-IMPRIMIR-TIT-CLI                            
+ 016205                        THRU 4000-F-IMPRIMIR-TIT-CLI                     
+ 016206            END-IF.                                                      
+ 016207                                                                         
+ 016208            MOVE SPACES TO WS-REG-CLIENTE                                
+ 016209            MOVE DB-CU-TIPCUEN TO WS-TIPCUEN                             
+ 016210            MOVE DB-CU-NROCUEN TO WS-NROCUEN                             
+ 016211            MOVE DB-CL-NOMAPE  TO WS-NOMYAPEL                            
+ 016212            MOVE DB-CL-NROCLI  TO WS-NROCLI                              
+ 016213            MOVE DB-CU-SALDO   TO WS-SALDO                               
+ 016215            WRITE REG-SALIDA FROM WS-REG-CLIENTE AFTER 1.                
+ 016216                                                                         
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 016217               IF FS-SAL IS NOT EQUAL '00'                               
+ 016218                 DISPLAY '* ERROR EN WRITE SALIDA = ' FS-SAL             
+ 016219                 MOVE 9999 TO RETURN-CODE                                
+ 016220               END-IF.                                                   
+ 016221                                                                         
+ 016222            ADD 1 TO CN-LINEA.                                           
+ 016224                                                                         
+ 016225        3000-F-IMPRIMIR-CUENTA.                                          
+ 016226            EXIT.                                                        
+ 016230                                                                         
+ 016231                                                                         
+ 016232        3100-IMPRIMIR-CORTE-TIPO.                                        
+ 016233       *-------------------------*                                       
+ 016234                                                                         
+ 016235            IF CN-LINEA GREATER 59                                       
+ 016236                PERFORM 4000-IMPRIMIR-TIT-CLI                            
+ 016237                        THRU 4000-F-IMPRIMIR-TIT-CLI                     
+ 016238            END-IF.                                                      
+ 016239                                                                         
+ 016240            MOVE WS-TIPCUEN-ANT TO WS-CUETIPO                            
+ 016241            MOVE CN-TOT-TIPO    TO WS-CUETOTAL                           
+ 016242            MOVE AC-SALCUEN     TO WS-SUCSALDO                           
+ 016243                                                                         
+ 016244            WRITE REG-SALIDA FROM WS-TOT-CUENTA AFTER 1.                 
+ 016245                                                                         
+ 016246               IF FS-SAL IS NOT EQUAL '00'                               
+ 016247                 DISPLAY '* ERROR EN WRITE SALIDA = ' FS-SAL             
+ 016248                 MOVE 9999 TO RETURN-CODE                                
+ 016250               END-IF.                                                   
+ 016251                                                                         
+ 016252            ADD 1 TO CN-LINEA.                                           
+ 016257                                                                         
+ 016258        3100-F-IMPRIMIR-CORTE-TIPO.                                      
+ 016259            EXIT.                                                        
+ 016260                                                                         
+ 016261                                                                         
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 016262        3200-IMPRIMIR-CORTE-SUC.                                         
+ 016263       *------------------------*                                        
+ 016264                                                                         
+ 016265            IF CN-LINEA GREATER 59                                       
+ 016266                PERFORM 4000-IMPRIMIR-TIT-CLI                            
+ 016267                        THRU 4000-F-IMPRIMIR-TIT-CLI                     
+ 016268            END-IF.                                                      
+ 016269                                                                         
+ 016270            MOVE WS-SUCUEN-ANT TO WS-SUCNAME2                            
+ 016271            MOVE CN-TOT-SUC    TO WS-SUCTOTAL                            
+ 016272            MOVE AC-SALSUC     TO WS-SUCSALDO2                           
+ 016273                                                                         
+ 016274            WRITE REG-SALIDA FROM WS-TOT-SUCURSAL AFTER 1.               
+ 016275                                                                         
+ 016276               IF FS-SAL IS NOT EQUAL '00'                               
+ 016277                 DISPLAY '* ERROR EN WRITE SALIDA = ' FS-SAL             
+ 016278                 MOVE 9999 TO RETURN-CODE                                
+ 016280               END-IF.                                                   
+ 016281                                                                         
+ 016282            ADD 1 TO CN-LINEA.                                           
+ 016284                                                                         
+ 016285        3200-F-IMPRIMIR-CORTE-SUC.                                       
+ 016286            EXIT.                                                        
+ 016287                                                                         
+ 016288                                                                         
+ 016289        3300-IMPRIMIR-CORTE-CLIENTE.                                     
+ 016290       *----------------------------*                                    
+ 016291                                                                         
+ 016292            IF CN-LINEA GREATER 59                                       
+ 016293                PERFORM 4000-IMPRIMIR-TIT-CLI                            
+ 016294                        THRU 4000-F-IMPRIMIR-TIT-CLI                     
+ 016295            END-IF.                                                      
+ 016296                                                                         
+ 016298            MOVE CN-TOT-CLI TO WS-CLITOTAL                               
+ 016299            MOVE AC-SALCLI  TO WS-SUCSALDO3                              
+ 016300                                                                         
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 016301            WRITE REG-SALIDA FROM WS-TOT-CLIENTE AFTER 1.                
+ 016302               IF FS-SAL IS NOT EQUAL '00'                               
+ 016303                 DISPLAY '* ERROR EN WRITE SALIDA = ' FS-SAL             
+ 016304                 MOVE 9999 TO RETURN-CODE                                
+ 016306               END-IF.                                                   
+ 016307                                                                         
+ 016308            ADD 1 TO CN-LINEA.                                           
+ 016309                                                                         
+ 016310            IF CN-LINEA NOT = 60                                         
+ 016311               WRITE REG-SALIDA FROM WS-SEPARADOR AFTER 1                
+ 016312                  IF FS-SAL IS NOT EQUAL '00'                            
+ 016313                    DISPLAY '* ERROR EN WRITE SALIDA = ' FS-SAL          
+ 016314                    MOVE 9999 TO RETURN-CODE                             
+ 016315                  END-IF                                                 
+ 016316               ADD 1 TO CN-LINEA                                         
+ 016317            END-IF.                                                      
+ 016318                                                                         
+ 016319        3300-F-IMPRIMIR-CORTE-CLIENTE.                                   
+ 016320            EXIT.                                                        
+ 016321                                                                         
+ 016322                                                                         
+ 016323        4000-IMPRIMIR-TIT-CLI.                                           
+ 016324       *----------------------*                                          
+ 016325                                                                         
+ 016326            MOVE SPACES TO WS-REG-CLIENTE                                
+ 016327            MOVE DB-CL-NOMAPE TO WS-NOMYAPEL                             
+ 016328            MOVE DB-CL-NROCLI TO WS-NROCLI                               
+ 016329            IF CN-LINEA GREATER 59                                       
+ 016330               MOVE 2 TO CN-LINEA                                        
+ 016331               ADD 1 TO CN-PAGINA                                        
+ 016332               WRITE REG-SALIDA FROM WS-TITULO AFTER PAGE                
+ 016333            ELSE                                                         
+ 016334               ADD 1 TO CN-LINEA                                         
+ 016335               WRITE REG-SALIDA FROM WS-TITULO AFTER 1                   
+ 016336            END-IF.                                                      
+ 016337                                                                         
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 016338                                                                         
+ 016339               IF FS-SAL IS NOT EQUAL '00'                               
+ 016340                 DISPLAY '* ERROR EN WRITE SALIDA = ' FS-SAL             
+ 016341                 MOVE 9999 TO RETURN-CODE                                
+ 016342               END-IF.                                                   
+ 016343                                                                         
+ 016344       *    WRITE REG-SALIDA FROM WS-REG-CLIENTE AFTER 1.                
+ 016345       *                                                                 
+ 016346       *       IF FS-SAL IS NOT EQUAL '00'                               
+ 016347       *         DISPLAY '* ERROR EN WRITE SALIDA = ' FS-SAL             
+ 016348       *         MOVE 9999 TO RETURN-CODE                                
+ 016349       *    END-IF.                                                      
+ 016350                                                                         
+ 016351        4000-F-IMPRIMIR-TIT-CLI.                                         
+ 016352            EXIT.                                                        
+ 016353                                                                         
+ 016354                                                                         
+ 016355        4100-IMPRIMIR-TIT-SUC.                                           
+ 016356       *----------------------*                                          
+ 016357                                                                         
+ 016358            IF CN-LINEA GREATER 59                                       
+ 016359                PERFORM 4000-IMPRIMIR-TIT-CLI                            
+ 016360                        THRU 4000-F-IMPRIMIR-TIT-CLI                     
+ 016361            END-IF.                                                      
+ 016362                                                                         
+ 016363            MOVE DB-CU-SUCUEN TO WS-SUCNAME                              
+ 016364                                                                         
+ 016365            WRITE REG-SALIDA FROM WS-TIT-SUCURSAL AFTER 1.               
+ 016366               IF FS-SAL IS NOT EQUAL '00'                               
+ 016367                 DISPLAY '* ERROR EN WRITE SALIDA = ' FS-SAL             
+ 016368                 MOVE 9999 TO RETURN-CODE                                
+ 016369              END-IF.                                                    
+ 016370                                                                         
+ 016371            ADD 1 TO CN-LINEA.                                           
+ 016372                                                                         
+ 016373        4100-F-IMPRIMIR-TIT-SUC.                                         
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ 016374            EXIT.                                                        
+ 016375                                                                         
+ 016376                                                                         
+ 016380        9999-I-FINAL.                                                    
+ 016400       *-------------*                                                   
+ 016410                                                                         
+ 016420            EXEC SQL                                                     
+ 016430               CLOSE CURSOR1                                             
+ 016440            END-EXEC.                                                    
+ 016450                                                                         
+ 016460            IF SQLCODE NOT EQUAL ZEROS                                   
+ 016470               MOVE SQLCODE TO WS-SQLCODE                                
+ 016480               DISPLAY '* ERROR CLOSE CURSOR     = ' WS-SQLCODE          
+ 016490               MOVE 9999 TO RETURN-CODE                                  
+ 016491            END-IF.                                                      
+ 016492                                                                         
+ 016500            CLOSE SALIDA                                                 
+ 016510                                                                         
+ 016600            IF FS-SAL NOT EQUAL '00'                                     
+ 016700               DISPLAY '* ERROR EN CLOSE SALIDA = ' FS-SAL               
+ 016800               MOVE 9999 TO RETURN-CODE                                  
+ 016900            END-IF                                                       
+ 017000            .                                                            
+ 017200        9999-F-FINAL.                                                    
+ 017400            EXIT.                                                        
+ ****** **************************** Bottom of Data ****************************
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ VIEW       ALU0015.CURSOS.FUENTE(PGMDB115) - 01.83         Columns 00001 00072 
+ ****** **************************** Bottom of Data ****************************
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .

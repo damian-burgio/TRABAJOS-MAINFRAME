@@ -1,0 +1,731 @@
+                                                  Record AT TOP     Format TABL 
+        NOV-TIP-NOV NOV-TIP-DOC  NOV-NRO-DOC NOV-CLI-NRO NOV-CLI-NOMBRE         
+        #2          #3                    #4          #5 #6                   + 
+        AN 1:2      AN 3:2           ZD 5:11     ZD 16:3 AN 19:30               
+        <>          <>          <---+----1->        <--> <---+----1----+----2-- 
+ ****** ****  Top of data  ****                                                 
+ 000001 AL          DU           84000000001         841 BUSTOS I               
+ 000002 AL          PI           84000000002         842 BUSTOS II              
+ 000003 AL          DU           84000000003         843 BUSTOS III             
+ 000004 AL          DU          ************         844 BUSTOS IV              
+ 000005 AL          DU           84000000005         845 BUSTOS V               
+ 000006 CN          DU           84000000006         846 BUSTOS CAMBIONOMBRE    
+ 000007 CN          DU           84000000007         847                        
+ 000008 CL          DU           84000000008         991 BUSTOS VIII            
+ 000009 CX          DU           84000000009         849 BUSTOS IX              
+ 000010 AL          DU           84000000000         840 BUSTOS X               
+
+
+NOV-CLI-FENAC NOV-CLI-SEXO FILLER                    
+#7            #8           #9                        
+AN 49:8       AN 57:1      AN 58:23                  
+<---+-->      -            <---+----1----+----2-->   
+****  Top of data  ****                              
+19840626      M                                      
+19840626      M                                      
+19840626      O                                      
+19840626      O                                      
+19840626      F                                      
+19840626      F                                      
+19840626      M                                      
+19840626      F                                      
+19840626      F                                      
+19841433      J                                      
+ ****** ****  End of data  ****                                                 
+
+
+dburg @ LAPTOP-1Q579QTS 2022-11-15 10:38:13
+
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ EDIT       ALU0023.CURSOS.FUENTE(PGMDB223) - 01.99         Columns 00001 00072 
+ ****** ***************************** Top of Data ******************************
+ 000100        IDENTIFICATION DIVISION.                                         
+ 000200         PROGRAM-ID PGMDB223.                                            
+ 000300                                                                         
+ 000400       ***********************************************                   
+ 000500       *                                             *                   
+ 000600       *              CHECK-POINT 32 BATCH           *                   
+ 000700       *               TP 40 - 15-11-2022            *                   
+ 000710       *                                             *                   
+ 000800       ***********************************************                   
+ 000900                                                                         
+ 001200        ENVIRONMENT DIVISION.                                            
+ 001300        CONFIGURATION SECTION.                                           
+ 001400        SPECIAL-NAMES.                                                   
+ 001500            DECIMAL-POINT IS COMMA.                                      
+ 001600        INPUT-OUTPUT SECTION.                                            
+ 001700        FILE-CONTROL.                                                    
+ 001800              SELECT ENTRADA ASSIGN DDENTRA                              
+ 001900                     FILE STATUS IS FS-ENT.                              
+ 001910                                                                         
+ 002100              SELECT LISTADO   ASSIGN DDLISTA                            
+ 002200                     FILE STATUS IS FS-LIS.                              
+ 002300                                                                         
+ 002310                                                                         
+ 002400        DATA DIVISION.                                                   
+ 002500        FILE SECTION.                                                    
+ 002600        FD ENTRADA                                                       
+ 002700             BLOCK CONTAINS 0 RECORDS                                    
+ 002800             RECORDING MODE IS F.                                        
+ 002900                                                                         
+ 003000        01 REG-ENTRADA    PIC X(80).                                     
+ 003100                                                                         
+ 003710        FD LISTADO                                                       
+ 003720             BLOCK CONTAINS 0 RECORDS                                    
+ 003730             RECORDING MODE IS F.                                        
+ 003740                                                                         
+ 003750        01 REG-LISTADO    PIC  X(132).                                   
+ 003760                                                                         
+ 003800                                                                         
+ 003900        WORKING-STORAGE SECTION.                                         
+ 004000       **************************************                            
+ 004300                                                                         
+ 004400        77  FS-ENT          PIC XX     VALUE SPACES.                     
+ 004501        77  FS-LIS          PIC XX     VALUE SPACES.                     
+ 004502        77  WS-SQLCODE    PIC +++999 USAGE DISPLAY VALUE ZEROS.          
+ 004503                                                                         
+ 004510        01  WS-STATUS-FIN   PIC X.                                       
+ 004520            88  WS-FIN-LECTURA         VALUE 'Y'.                        
+ 004530            88  WS-NO-FIN-LECTURA      VALUE 'N'.                        
+ 004600                                                                         
+ 004700        01  WS-VALIDADOR    PIC X.                                       
+ 004800            88  WS-ERROR               VALUE 'Y'.                        
+ 004900            88  WS-NO-ERROR            VALUE 'N'.                        
+ 005000                                                                         
+ 005300        01  WS-FECHA-ACTUAL.                                             
+ 005400            03 WS-ANIO               PIC 9(4)     VALUE ZEROS.           
+ 005500            03 FILLER                PIC X(1)     VALUE '-'.             
+ 005600            03 WS-MES                PIC 9(2)     VALUE ZEROS.           
+ 005700            03 FILLER                PIC X(1)     VALUE '-'.             
+ 005800            03 WS-DIA                PIC 9(2)     VALUE ZEROS.           
+ 005900                                                                         
+ 006000        01 WS-STATUS-FECHA           PIC X.                              
+ 006100           88 WS-FECHA-VALIDA                     VALUE 'Y'.             
+ 006200           88 WS-FECHA-NOT-VALIDA                 VALUE 'N'.             
+ 006300                                                                         
+ 006400        77  WS-RESULTADO             PIC 9(04)    VALUE ZEROS.           
+ 006500        77  WS-RESTO-4               PIC 9(04)V99 VALUE ZEROS.           
+ 006600        77  WS-RESTO-100             PIC 9(02)V99 VALUE ZEROS.           
+ 006700        77  WS-RESTO-400             PIC 9(02)V99 VALUE ZEROS.           
+ 006710                                                                         
+ 006740            COPY NOVECLIE.                                               
+ 006800                                                                         
+ 006801            EXEC SQL                                                     
+ 006802              INCLUDE SQLCA                                              
+ 006803            END-EXEC.                                                    
+ 006804                                                                         
+ 006805            EXEC SQL                                                     
+ 006806              INCLUDE TB99CLIE                                           
+ 006807            END-EXEC.                                                    
+ 006808                                                                         
+ 006820        77  WS-TOT-LEI      PIC 99     VALUE ZEROS.                      
+ 006822        77  WS-TOT-ERR      PIC 99     VALUE ZEROS.                      
+ 006823        77  WS-TOT-ALTAS    PIC 99     VALUE ZEROS.                      
+ 006824        77  WS-TOT-MOD      PIC 99     VALUE ZEROS.                      
+ 006825                                                                         
+ 006826        77  WS-PRINT        PIC ZZ9    VALUE ZEROS.                      
+ 006830                                                                         
+ 006840        01  WS-REG-LISTADO.                                              
+ 006860            03  FILLER         PIC X(17)    VALUE 'TIPO DE NOVEDAD: '.   
+ 006870            03  WS-LIS-NOV     PIC XX       VALUE ZEROS.                 
+ 006871            03  FILLER         PIC X(9)     VALUE SPACES.                
+ 006880            03  FILLER         PIC X(19)    VALUE 'TIPO DE DOCUMENTO: '. 
+ 006890            03  WS-LIS-TIP-DOC PIC XX       VALUE SPACES.                
+ 006891            03  FILLER         PIC X(5)     VALUE SPACES.                
+ 006892            03  FILLER         PIC X(18)    VALUE 'NRO DE DOCUMENTO: '.  
+ 006893            03  WS-LIS-NRO-DOC PIC 9(11)    VALUE ZEROS.                 
+ 006894            03  FILLER         PIC X        VALUE SPACES.                
+ 006895                                                                         
+ 006896        01  WS-REG-ERROR.                                                
+ 006897            03  FILLER         PIC X(3)     VALUE SPACES.                
+ 006898            03  FILLER         PIC X(26)                                 
+ 006899                                VALUE 'ERROR ENCONTRADO EN CAMPO '.      
+ 006900            03  WS-ERROR-TIPO  PIC X(30)    VALUE ZEROS.                 
+ 006902            03  FILLER         PIC X(2)     VALUE ': '.                  
+ 006903            03  WS-ERROR-CAMPO PIC X(30)    VALUE SPACES.                
+ 006904            03  FILLER         PIC X        VALUE SPACES.                
+ 006908                                                                         
+ 006909        01  WS-REG-TITULO.                                               
+ 006910            03  FILLER         PIC X        VALUE '*'.                   
+ 006911            03  FILLER         PIC X(45)    VALUE SPACES.                
+ 006912            03  FILLER         PIC X(32)                                 
+ 006913                                VALUE '   NOVEDADES CON ERROR - FECHA: '.
+ 006914            03  WS-DD          PIC Z9       VALUE ZEROS.                 
+ 006915            03  FILLER         PIC X        VALUE '-'.                   
+ 006916            03  WS-MM          PIC Z9       VALUE ZEROS.                 
+ 006917            03  FILLER         PIC X        VALUE '-'.                   
+ 006918            03  FILLER         PIC 99       VALUE 20.                    
+ 006919            03  WS-AA          PIC 99       VALUE ZEROS.                 
+ 006920            03  FILLER         PIC X(32)    VALUE SPACES.                
+ 006921            03  FILLER         PIC X(08)    VALUE 'PAGINA: '.            
+ 006922            03  WS-PAGINA      PIC Z9       VALUE ZEROS.                 
+ 006923            03  FILLER         PIC X        VALUE SPACES.                
+ 006924            03  FILLER         PIC X        VALUE '*'.                   
+ 006925                                                                         
+ 006926        01  WS-SEPARADOR       PIC X(132)   VALUE ALL '*'.               
+ 006927        01  WS-SEPARADOR-REG   PIC X(132)   VALUE ALL '='.               
+ 006928                                                                         
+ 006933        01  WS-FECHA.                                                    
+ 006934            03  WS-FECHA-AA    PIC 99       VALUE ZEROS.                 
+ 006935            03  WS-FECHA-MM    PIC 99       VALUE ZEROS.                 
+ 006936            03  WS-FECHA-DD    PIC 99       VALUE ZEROS.                 
+ 006937                                                                         
+ 006938        77  WS-CUENTA-LINEA    PIC 9(02)    VALUE ZEROS.                 
+ 006939        77  WS-CUENTA-PAGINA   PIC 9(02)    VALUE 01.                    
+ 006941                                                                         
+ 006942                                                                         
+ 006950        PROCEDURE DIVISION.                                              
+ 007000       *****************************************************             
+ 007100       **************************************                            
+ 007200       *                                    *                            
+ 007300       *  CUERPO PRINCIPAL DEL PROGRAMA     *                            
+ 007400       *                                    *                            
+ 007500       **************************************                            
+ 007600        MAIN-PROGRAM-INICIO.                                             
+ 007700                                                                         
+ 007900            PERFORM 1000-I-INICIO  THRU 1000-F-INICIO.                   
+ 008000                                                                         
+ 008100            PERFORM 2000-I-PROCESO THRU  2000-F-PROCESO                  
+ 008200                                   UNTIL WS-FIN-LECTURA.                 
+ 008300                                                                         
+ 008700            PERFORM 9999-I-FINAL     THRU  9999-I-FINAL.                 
+ 008800                                                                         
+ 008900        MAIN-PROGRAM-FINAL. GOBACK.                                      
+ 009000                                                                         
+ 009100       **************************************                            
+ 009200        1000-I-INICIO.                                                   
+ 009300       **************************************                            
+ 009400                                                                         
+ 009410            ACCEPT WS-FECHA FROM DATE.                                   
+ 009420            MOVE WS-FECHA-AA TO WS-AA.                                   
+ 009430            MOVE WS-FECHA-MM TO WS-MM.                                   
+ 009440            MOVE WS-FECHA-DD TO WS-DD.                                   
+ 009450            MOVE 62 TO WS-CUENTA-LINEA.                                  
+ 009460                                                                         
+ 009500            SET WS-NO-FIN-LECTURA TO TRUE.                               
+ 009600                                                                         
+ 009700            OPEN INPUT ENTRADA.                                          
+ 009800            IF FS-ENT IS NOT EQUAL '00'                                  
+ 009900               DISPLAY '* ERROR EN OPEN ENTRADA INICIO = ' FS-ENT        
+ 010000               SET  WS-FIN-LECTURA TO TRUE                               
+ 010100            END-IF.                                                      
+ 010200                                                                         
+ 010900            OPEN OUTPUT LISTADO.                                         
+ 011000            IF FS-LIS IS NOT EQUAL '00'                                  
+ 011100               DISPLAY '* ERROR EN OPEN IMPRESION INICIO = ' FS-LIS      
+ 011200               SET  WS-FIN-LECTURA TO TRUE                               
+ 011300            END-IF.                                                      
+ 011400                                                                         
+ 013610            PERFORM 2100-LECTURA THRU 2100-F-LECTURA.                    
+ 013700                                                                         
+ 013800        1000-F-INICIO. EXIT.                                             
+ 013900                                                                         
+ 014000       **************************************                            
+ 014100        2000-I-PROCESO.                                                  
+ 014200       **************************************                            
+ 014300                                                                         
+ 014301            EVALUATE NOV-TIP-NOV                                         
+ 014302               WHEN 'AL'                                                 
+ 014303                  PERFORM 3000-VALIDACION-AL THRU 3000-F-VALIDACION-AL   
+ 014304                  IF WS-ERROR THEN                                       
+ 014305                     ADD 1 TO WS-TOT-ERR                                 
+ 014306                  ELSE                                                   
+ 014308                     PERFORM 4000-INSERT-AL THRU 4000-F-INSERT-AL        
+ 014309                  END-IF                                                 
+ 014320               WHEN 'CN'                                                 
+ 014400                  PERFORM 3010-VALIDACION-CN THRU 3010-F-VALIDACION-CN   
+ 014410                  IF WS-ERROR THEN                                       
+ 014420                     ADD 1 TO WS-TOT-ERR                                 
+ 014430                  ELSE                                                   
+ 014450                     PERFORM 4010-UPDATE-CN THRU 4010-F-UPDATE-CN        
+ 014460                  END-IF                                                 
+ 014500               WHEN 'CL'                                                 
+ 014600                  PERFORM 3020-VALIDACION-CL THRU 3020-F-VALIDACION-CL   
+ 014610                  IF WS-ERROR THEN                                       
+ 014620                     ADD 1 TO WS-TOT-ERR                                 
+ 014630                  ELSE                                                   
+ 014650                     PERFORM 4020-UPDATE-CL THRU 4020-F-UPDATE-CL        
+ 014660                  END-IF                                                 
+ 014700               WHEN 'CX'                                                 
+ 014800                  PERFORM 3030-VALIDACION-CX THRU 3030-F-VALIDACION-CX   
+ 014810                  IF WS-ERROR THEN                                       
+ 014820                     ADD 1 TO WS-TOT-ERR                                 
+ 014830                  ELSE                                                   
+ 014850                     PERFORM 4030-UPDATE-CX THRU 4030-F-UPDATE-CX        
+ 014860                  END-IF                                                 
+ 014900               WHEN OTHER                                                
+ 015000                  ADD 1 TO WS-TOT-ERR                                    
+ 015010                  PERFORM 5000-IMPRIMIR-REGISTRO                         
+ 015020                          THRU 5000-F-IMPRIMIR-REGISTRO                  
+ 015030                  INITIALIZE WS-REG-ERROR                                
+ 015040                  MOVE 'NOVEDAD' TO WS-ERROR-TIPO                        
+ 015050                  MOVE NOV-TIP-NOV TO WS-ERROR-CAMPO                     
+ 015060                  PERFORM 5100-IMPRIMIR-ERROR THRU 5100-F-IMPRIMIR-ERROR 
+ 015100            END-EVALUATE.                                                
+ 015200                                                                         
+ 016010            PERFORM 2100-LECTURA THRU 2100-F-LECTURA.                    
+ 016040                                                                         
+ 016050                                                                         
+ 016100        2000-F-PROCESO. EXIT.                                            
+ 016200                                                                         
+ 016201       ***** LECTURA ARCHIVO NOVEDADES ******                            
+ 016202        2100-LECTURA.                                                    
+ 016203       **************************************                            
+ 016204                                                                         
+ 016205            READ ENTRADA INTO WS-REG-NOVECLI.                            
+ 016207            EVALUATE FS-ENT                                              
+ 016208              WHEN '00'                                                  
+ 016209               ADD 1 TO WS-TOT-LEI                                       
+ 016210               SET WS-NO-ERROR TO TRUE                                   
+ 016211              WHEN '10'                                                  
+ 016213               SET WS-FIN-LECTURA TO TRUE                                
+ 016214                                                                         
+ 016215              WHEN OTHER                                                 
+ 016216               DISPLAY '*ERROR EN LECTURA ENTRADA : ' FS-ENT             
+ 016217               SET WS-FIN-LECTURA TO TRUE                                
+ 016218                                                                         
+ 016219            END-EVALUATE.                                                
+ 016220                                                                         
+ 016222                                                                         
+ 016223        2100-F-LECTURA. EXIT.                                            
+ 016224                                                                         
+ 016230                                                                         
+ 016300       ***** VALIDACION DE CAMPOS ***********                            
+ 016400        3000-VALIDACION-AL.                                              
+ 016500       **************************************                            
+ 016600                                                                         
+ 016700            SET WS-NO-ERROR TO TRUE.                                     
+ 016710                                                                         
+ 016910            IF NOV-TIP-DOC IS EQUAL TO                                   
+ 016911                              'DU' OR 'PA' OR 'LE' OR 'LC'               
+ 016912               CONTINUE                                                  
+ 016913            ELSE                                                         
+ 016914               IF WS-NO-ERROR                                            
+ 016915                  PERFORM 5000-IMPRIMIR-REGISTRO                         
+ 016916                          THRU 5000-F-IMPRIMIR-REGISTRO                  
+ 016917               END-IF                                                    
+ 016930               SET WS-ERROR TO TRUE                                      
+ 016931               INITIALIZE WS-REG-ERROR                                   
+ 016932               MOVE 'TIPO DE DOCUMENTO' TO WS-ERROR-TIPO                 
+ 016933               MOVE NOV-TIP-DOC TO WS-ERROR-CAMPO                        
+ 016935               PERFORM 5100-IMPRIMIR-ERROR THRU 5100-F-IMPRIMIR-ERROR    
+ 016940            END-IF.                                                      
+ 016950                                                                         
+ 016960            IF NOV-NRO-DOC IS NOT NUMERIC OR                             
+ 016961               NOV-NRO-DOC < 1                                           
+ 016962               IF WS-NO-ERROR                                            
+ 016963                  PERFORM 5000-IMPRIMIR-REGISTRO                         
+ 016964                          THRU 5000-F-IMPRIMIR-REGISTRO                  
+ 016965               END-IF                                                    
+ 016980               SET WS-ERROR TO TRUE                                      
+ 016981               INITIALIZE WS-REG-ERROR                                   
+ 016982               MOVE 'NRO DE DOCUMENTO' TO WS-ERROR-TIPO                  
+ 016983               MOVE NOV-NRO-DOC TO WS-ERROR-CAMPO                        
+ 016985               PERFORM 5100-IMPRIMIR-ERROR THRU 5100-F-IMPRIMIR-ERROR    
+ 016990            END-IF.                                                      
+ 016991                                                                         
+ 016992            IF NOV-CLI-NRO IS NOT NUMERIC OR                             
+ 016993               NOV-CLI-NRO < 1                                           
+ 016994               IF WS-NO-ERROR                                            
+ 016995                  PERFORM 5000-IMPRIMIR-REGISTRO                         
+ 016996                          THRU 5000-F-IMPRIMIR-REGISTRO                  
+ 016997               END-IF                                                    
+ 016998               SET WS-ERROR TO TRUE                                      
+ 016999               INITIALIZE WS-REG-ERROR                                   
+ 017000               MOVE 'NUMERO DE CLIENTE' TO WS-ERROR-TIPO                 
+ 017001               MOVE NOV-CLI-NRO TO WS-ERROR-CAMPO                        
+ 017002               PERFORM 5100-IMPRIMIR-ERROR THRU 5100-F-IMPRIMIR-ERROR    
+ 017003            END-IF.                                                      
+ 017004                                                                         
+ 017005            IF NOV-CLI-NOMBRE IS EQUAL TO SPACES                         
+ 017006               IF WS-NO-ERROR                                            
+ 017007                  PERFORM 5000-IMPRIMIR-REGISTRO                         
+ 017008                          THRU 5000-F-IMPRIMIR-REGISTRO                  
+ 017009               END-IF                                                    
+ 017010               SET WS-ERROR TO TRUE                                      
+ 017011               INITIALIZE WS-REG-ERROR                                   
+ 017012               MOVE 'NOMBRE' TO WS-ERROR-TIPO                            
+ 017013               MOVE NOV-CLI-NOMBRE TO WS-ERROR-CAMPO                     
+ 017014               PERFORM 5100-IMPRIMIR-ERROR THRU 5100-F-IMPRIMIR-ERROR    
+ 017015            END-IF.                                                      
+ 017020                                                                         
+ 017091            IF NOV-CLI-SEXO IS EQUAL TO 'F' OR 'M' OR 'O'                
+ 017093               CONTINUE                                                  
+ 017094            ELSE                                                         
+ 017095               IF WS-NO-ERROR                                            
+ 017096                  PERFORM 5000-IMPRIMIR-REGISTRO                         
+ 017097                          THRU 5000-F-IMPRIMIR-REGISTRO                  
+ 017098               END-IF                                                    
+ 017099               SET WS-ERROR TO TRUE                                      
+ 017100               INITIALIZE WS-REG-ERROR                                   
+ 017101               MOVE 'SEXO' TO WS-ERROR-TIPO                              
+ 017102               MOVE NOV-CLI-SEXO TO WS-ERROR-CAMPO                       
+ 017103               PERFORM 5100-IMPRIMIR-ERROR THRU 5100-F-IMPRIMIR-ERROR    
+ 017104            END-IF.                                                      
+ 017105                                                                         
+ 017113            MOVE NOV-CLI-FENAC(1:4) TO WS-ANIO.                          
+ 017114            MOVE NOV-CLI-FENAC(5:2) TO WS-MES.                           
+ 017115            MOVE NOV-CLI-FENAC(7:2) TO WS-DIA.                           
+ 017116                                                                         
+ 017117            PERFORM 3100-VALIDAR-FECHA                                   
+ 017118                    THRU 3100-F-VALIDAR-FECHA.                           
+ 017119                                                                         
+ 017120            IF WS-FECHA-NOT-VALIDA THEN                                  
+ 017121               IF WS-NO-ERROR                                            
+ 017122                  PERFORM 5000-IMPRIMIR-REGISTRO                         
+ 017123                          THRU 5000-F-IMPRIMIR-REGISTRO                  
+ 017124               END-IF                                                    
+ 017125               SET WS-ERROR TO TRUE                                      
+ 017126               INITIALIZE WS-REG-ERROR                                   
+ 017127               MOVE 'FECHA DE NACIMIENTO' TO WS-ERROR-TIPO               
+ 017128               MOVE NOV-CLI-FENAC TO WS-ERROR-CAMPO                      
+ 017129               PERFORM 5100-IMPRIMIR-ERROR THRU 5100-F-IMPRIMIR-ERROR    
+ 017130            END-IF.                                                      
+ 017131                                                                         
+ 017132        3000-F-VALIDACION-AL. EXIT.                                      
+ 017133                                                                         
+ 017135        3010-VALIDACION-CN.                                              
+ 017136                                                                         
+ 017137            IF NOV-CLI-NOMBRE IS EQUAL TO SPACES                         
+ 017138               SET WS-ERROR TO TRUE                                      
+ 017139               PERFORM 5000-IMPRIMIR-REGISTRO                            
+ 017140                       THRU 5000-F-IMPRIMIR-REGISTRO                     
+ 017141               INITIALIZE WS-REG-ERROR                                   
+ 017142               MOVE 'NOMBRE' TO WS-ERROR-TIPO                            
+ 017143               MOVE NOV-CLI-NOMBRE TO WS-ERROR-CAMPO                     
+ 017144               PERFORM 5100-IMPRIMIR-ERROR THRU 5100-F-IMPRIMIR-ERROR    
+ 017145            END-IF.                                                      
+ 017146                                                                         
+ 017147        3010-F-VALIDACION-CN. EXIT.                                      
+ 017148                                                                         
+ 017149        3020-VALIDACION-CL.                                              
+ 017150                                                                         
+ 017151            IF NOV-CLI-NRO IS NOT NUMERIC OR                             
+ 017152               NOV-CLI-NRO < 1                                           
+ 017153               SET WS-ERROR TO TRUE                                      
+ 017154               PERFORM 5000-IMPRIMIR-REGISTRO                            
+ 017155                       THRU 5000-F-IMPRIMIR-REGISTRO                     
+ 017156               INITIALIZE WS-REG-ERROR                                   
+ 017157               MOVE 'NUMERO DE CLIENTE' TO WS-ERROR-TIPO                 
+ 017158               MOVE NOV-CLI-NRO TO WS-ERROR-CAMPO                        
+ 017159               PERFORM 5100-IMPRIMIR-ERROR THRU 5100-F-IMPRIMIR-ERROR    
+ 017160            END-IF.                                                      
+ 017161                                                                         
+ 017162        3020-F-VALIDACION-CL. EXIT.                                      
+ 017163                                                                         
+ 017164        3030-VALIDACION-CX.                                              
+ 017165                                                                         
+ 017166            IF NOV-CLI-SEXO IS EQUAL TO 'F' OR 'M' OR 'O'                
+ 017167               CONTINUE                                                  
+ 017168            ELSE                                                         
+ 017169               SET WS-ERROR TO TRUE                                      
+ 017170               PERFORM 5000-IMPRIMIR-REGISTRO                            
+ 017171                       THRU 5000-F-IMPRIMIR-REGISTRO                     
+ 017172               INITIALIZE WS-REG-ERROR                                   
+ 017173               MOVE 'SEXO' TO WS-ERROR-TIPO                              
+ 017174               MOVE NOV-CLI-SEXO TO WS-ERROR-CAMPO                       
+ 017175               PERFORM 5100-IMPRIMIR-ERROR THRU 5100-F-IMPRIMIR-ERROR    
+ 017176            END-IF.                                                      
+ 017177                                                                         
+ 017178        3030-F-VALIDACION-CX. EXIT.                                      
+ 017179                                                                         
+ 017180       ***** VALIDACION DE FECHA ************                            
+ 017181        3100-VALIDAR-FECHA.                                              
+ 017182       **************************************                            
+ 017183                                                                         
+ 017184            SET WS-FECHA-VALIDA TO TRUE.                                 
+ 017185                                                                         
+ 017186            IF WS-ANIO IS NOT NUMERIC OR                                 
+ 017187               WS-MES  IS NOT NUMERIC OR                                 
+ 017188               WS-DIA  IS NOT NUMERIC                                    
+ 017189                  SET WS-FECHA-NOT-VALIDA TO TRUE                        
+ 017190            END-IF.                                                      
+ 017191                                                                         
+ 017192            IF WS-FECHA-VALIDA                                           
+ 017193                  IF WS-ANIO < 1922 OR WS-ANIO > 2003                    
+ 017194                     SET WS-FECHA-NOT-VALIDA TO TRUE                     
+ 017195                  END-IF                                                 
+ 017196                                                                         
+ 017197                  IF WS-MES < 00 OR WS-MES > 13                          
+ 017198                     SET WS-FECHA-NOT-VALIDA TO TRUE                     
+ 017199                  END-IF                                                 
+ 017200                                                                         
+ 017201                  IF WS-MES = 02                                         
+ 017202                   IF WS-DIA > 28                                        
+ 017203                      IF WS-DIA > 29                                     
+ 017204                         SET WS-FECHA-NOT-VALIDA TO TRUE                 
+ 017205                      ELSE                                               
+ 017206                        DIVIDE WS-ANIO BY 004 GIVING WS-RESULTADO        
+ 017207                                       REMAINDER WS-RESTO-4              
+ 017208                        DIVIDE WS-ANIO BY 100 GIVING WS-RESULTADO        
+ 017209                                       REMAINDER WS-RESTO-100            
+ 017210                        DIVIDE WS-ANIO BY 400 GIVING WS-RESULTADO        
+ 017211                                       REMAINDER WS-RESTO-400            
+ 017212                        IF NOT ((WS-RESTO-4 EQUAL 0 AND                  
+ 017213                               WS-RESTO-100 NOT EQUAL 0) OR              
+ 017214                               WS-RESTO-400 EQUAL 0)                     
+ 017215                                  SET WS-FECHA-NOT-VALIDA TO TRUE        
+ 017216                      END-IF                                             
+ 017217                   END-IF                                                
+ 017218                  END-IF                                                 
+ 017219                                                                         
+ 017220                  IF WS-MES IS EQUAL TO (4 OR 6 OR 9 OR 11) AND          
+ 017221                   WS-DIA > 30                                           
+ 017222                      SET WS-FECHA-NOT-VALIDA TO TRUE                    
+ 017223                  END-IF                                                 
+ 017224                  IF WS-MES IS EQUAL TO                                  
+ 017225                    (1 OR 3 OR 5 OR 7 OR 8 OR 10 OR 12) AND              
+ 017226                    WS-DIA > 31                                          
+ 017227                      SET WS-FECHA-NOT-VALIDA TO TRUE                    
+ 017228                  END-IF                                                 
+ 017229                                                                         
+ 017230            END-IF.                                                      
+ 017231                                                                         
+ 017240        3100-F-VALIDAR-FECHA. EXIT.                                      
+ 017300                                                                         
+ 017400        4000-INSERT-AL.                                                  
+ 017500                                                                         
+ 017510            MOVE NOV-TIP-DOC     TO DB-CL-TIPDOC                         
+ 017520            MOVE NOV-NRO-DOC     TO DB-CL-NRODOC                         
+ 017530            MOVE NOV-CLI-NRO     TO DB-CL-NROCLI                         
+ 017540            MOVE NOV-CLI-NOMBRE  TO DB-CL-NOMAPE                         
+ 017541            MOVE WS-FECHA-ACTUAL TO DB-CL-FECNAC                         
+ 017550            MOVE NOV-CLI-SEXO    TO DB-CL-SEXO                           
+ 017560                                                                         
+ 017570            EXEC SQL                                                     
+ 017580                INSERT INTO ITPLZRY.TB99CLIE  (TIPDOC,                   
+ 017590                                               NRODOC,                   
+ 017591                                               NROCLI,                   
+ 017592                                               NOMAPE,                   
+ 017593                                               FECNAC,                   
+ 017594                                               SEXO)                     
+ 017595                                                                         
+ 017596                       VALUES                 (:DB-CL-TIPDOC,            
+ 017597                                               :DB-CL-NRODOC,            
+ 017598                                               :DB-CL-NROCLI,            
+ 017599                                               :DB-CL-NOMAPE,            
+ 017600                                               :DB-CL-FECNAC,            
+ 017601                                               :DB-CL-SEXO)              
+ 017602            END-EXEC.                                                    
+ 017603                                                                         
+ 017604            EVALUATE SQLCODE                                             
+ 017605              WHEN ZEROS                                                 
+ 017606                 ADD 1 TO WS-TOT-ALTAS                                   
+ 017607              WHEN  -803                                                 
+ 017608                 ADD 1 TO WS-TOT-ERR                                     
+ 017609                 SET WS-ERROR TO TRUE                                    
+ 017610                 INITIALIZE WS-REG-ERROR                                 
+ 017611                 MOVE '***CLIENTE DUPLICADO' TO WS-ERROR-TIPO            
+ 017612                 MOVE NOV-CLI-NRO TO WS-ERROR-CAMPO                      
+ 017613                 PERFORM 5100-IMPRIMIR-ERROR THRU 5100-F-IMPRIMIR-ERROR  
+ 017617              WHEN OTHER                                                 
+ 017618                 MOVE SQLCODE TO WS-SQLCODE                              
+ 017619                 DISPLAY 'ERROR INSERT SQL : ' WS-SQLCODE                
+ 017620                 SET WS-FIN-LECTURA TO TRUE                              
+ 017621            END-EVALUATE.                                                
+ 017622                                                                         
+ 017630        4000-F-INSERT-AL. EXIT.                                          
+ 017700                                                                         
+ 017710        4010-UPDATE-CN.                                                  
+ 017720                                                                         
+ 017721            MOVE NOV-CLI-NOMBRE TO DB-CL-NOMAPE                          
+ 017722            MOVE NOV-TIP-DOC TO DB-CL-TIPDOC                             
+ 017723            MOVE NOV-NRO-DOC TO DB-CL-NRODOC                             
+ 017724                                                                         
+ 017725            EXEC SQL                                                     
+ 017726                UPDATE ITPLZRY.TB99CLIE                                  
+ 017727                SET NOMAPE = :DB-CL-NOMAPE                               
+ 017728                WHERE TIPDOC = :DB-CL-TIPDOC                             
+ 017729                AND NRODOC = :DB-CL-NRODOC                               
+ 017730            END-EXEC.                                                    
+ 017734                                                                         
+ 017735            IF SQLCODE NOT EQUAL ZEROS                                   
+ 017736               MOVE SQLCODE   TO WS-SQLCODE                              
+ 017737               DISPLAY '* ERROR UPDATE NOMBRE = ' WS-SQLCODE             
+ 017738               SET WS-FIN-LECTURA TO TRUE                                
+ 017739            ELSE                                                         
+ 017740               ADD 1 TO WS-TOT-MOD                                       
+ 017741            END-IF.                                                      
+ 017747                                                                         
+ 017748        4010-F-UPDATE-CN. EXIT.                                          
+ 017749                                                                         
+ 017750        4020-UPDATE-CL.                                                  
+ 017760                                                                         
+ 017761            MOVE NOV-CLI-NRO TO DB-CL-NROCLI                             
+ 017762            MOVE NOV-TIP-DOC TO DB-CL-TIPDOC                             
+ 017763            MOVE NOV-NRO-DOC TO DB-CL-NRODOC                             
+ 017764                                                                         
+ 017765            EXEC SQL                                                     
+ 017766                UPDATE ITPLZRY.TB99CLIE                                  
+ 017767                SET NROCLI = :DB-CL-NROCLI                               
+ 017768                WHERE TIPDOC = :DB-CL-TIPDOC                             
+ 017769                AND NRODOC = :DB-CL-NRODOC                               
+ 017770            END-EXEC.                                                    
+ 017771                                                                         
+ 017772            IF SQLCODE NOT EQUAL ZEROS                                   
+ 017773               MOVE SQLCODE   TO WS-SQLCODE                              
+ 017774               DISPLAY '* ERROR UPDATE NRO CLIENTE = ' WS-SQLCODE        
+ 017775               SET WS-FIN-LECTURA TO TRUE                                
+ 017776            ELSE                                                         
+ 017777               ADD 1 TO WS-TOT-MOD                                       
+ 017778            END-IF.                                                      
+ 017787                                                                         
+ 017788        4020-F-UPDATE-CL. EXIT.                                          
+ 017789                                                                         
+ 017790        4030-UPDATE-CX.                                                  
+ 017791                                                                         
+ 017792            MOVE NOV-CLI-SEXO TO DB-CL-SEXO                              
+ 017793            MOVE NOV-TIP-DOC TO DB-CL-TIPDOC                             
+ 017794            MOVE NOV-NRO-DOC TO DB-CL-NRODOC                             
+ 017795                                                                         
+ 017796            EXEC SQL                                                     
+ 017797                UPDATE ITPLZRY.TB99CLIE                                  
+ 017798                SET SEXO = :DB-CL-SEXO                                   
+ 017799                WHERE TIPDOC = :DB-CL-TIPDOC                             
+ 017800                AND NRODOC = :DB-CL-NRODOC                               
+ 017801            END-EXEC.                                                    
+ 017802                                                                         
+ 017803            IF SQLCODE NOT EQUAL ZEROS                                   
+ 017804               MOVE SQLCODE   TO WS-SQLCODE                              
+ 017805               DISPLAY '* ERROR UPDATE SEXO = ' WS-SQLCODE               
+ 017806               SET WS-FIN-LECTURA TO TRUE                                
+ 017807            ELSE                                                         
+ 017808               ADD 1 TO WS-TOT-MOD                                       
+ 017809            END-IF.                                                      
+ 017818                                                                         
+ 017819        4030-F-UPDATE-CX. EXIT.                                          
+ 017820                                                                         
+ 027717        5000-IMPRIMIR-REGISTRO.                                          
+ 027718                                                                         
+ 027719            IF WS-CUENTA-LINEA GREATER 59                                
+ 027720                PERFORM 5500-IMPRIMIR-TITULOS THRU                       
+ 027730                      5500-F-IMPRIMIR-TITULOS                            
+ 027740            END-IF.                                                      
+ 027750                                                                         
+ 027751            INITIALIZE WS-REG-LISTADO.                                   
+ 027752            MOVE NOV-TIP-NOV   TO WS-LIS-NOV.                            
+ 027753            MOVE NOV-TIP-DOC TO WS-LIS-TIP-DOC.                          
+ 027754            MOVE NOV-NRO-DOC TO WS-LIS-NRO-DOC.                          
+ 027755                                                                         
+ 027760            WRITE REG-LISTADO  FROM WS-REG-LISTADO AFTER 1.              
+ 027770               IF FS-LIS IS NOT EQUAL '00'                               
+ 027780                 DISPLAY '* ERROR EN WRITE LISTADO = ' FS-LIS            
+ 027791                 MOVE 9999 TO RETURN-CODE                                
+ 027792                 SET WS-FIN-LECTURA TO TRUE                              
+ 027793              END-IF.                                                    
+ 027794                                                                         
+ 027796              ADD 1 TO WS-CUENTA-LINEA.                                  
+ 027797                                                                         
+ 027798        5000-F-IMPRIMIR-REGISTRO. EXIT.                                  
+ 027799                                                                         
+ 027800        5100-IMPRIMIR-ERROR.                                             
+ 027801                                                                         
+ 027802            IF WS-CUENTA-LINEA GREATER 59                                
+ 027803                PERFORM 5500-IMPRIMIR-TITULOS THRU                       
+ 027804                      5500-F-IMPRIMIR-TITULOS                            
+ 027805                PERFORM 5000-IMPRIMIR-REGISTRO THRU                      
+ 027806                      5000-F-IMPRIMIR-REGISTRO                           
+ 027807            END-IF.                                                      
+ 027808                                                                         
+ 027812            WRITE REG-LISTADO  FROM WS-REG-ERROR AFTER 1.                
+ 027813               IF FS-LIS IS NOT EQUAL '00'                               
+ 027814                 DISPLAY '* ERROR EN WRITE LISTADO = ' FS-LIS            
+ 027815                 MOVE 9999 TO RETURN-CODE                                
+ 027816                 SET WS-FIN-LECTURA TO TRUE                              
+ 027817              END-IF.                                                    
+ 027818                                                                         
+ 027819              ADD 1 TO WS-CUENTA-LINEA.                                  
+ 027822                                                                         
+ 027823        5100-F-IMPRIMIR-ERROR. EXIT.                                     
+ 027824                                                                         
+ 027843        5300-IMPRIMIR-SEPARADOR.                                         
+ 027844                                                                         
+ 027845            IF WS-CUENTA-LINEA GREATER 59                                
+ 027846                PERFORM 5500-IMPRIMIR-TITULOS THRU                       
+ 027847                      5500-F-IMPRIMIR-TITULOS                            
+ 027848            ELSE                                                         
+ 027849                                                                         
+ 027850               WRITE REG-LISTADO  FROM WS-SEPARADOR-REG AFTER 1          
+ 027851                  IF FS-LIS IS NOT EQUAL '00'                            
+ 027852                    DISPLAY '* ERROR EN WRITE LISTADO = ' FS-LIS         
+ 027853                    MOVE 9999 TO RETURN-CODE                             
+ 027854                    SET WS-FIN-LECTURA TO TRUE                           
+ 027855                  END-IF                                                 
+ 027856                                                                         
+ 027857               ADD 1 TO WS-CUENTA-LINEA                                  
+ 027858                                                                         
+ 027859            END-IF.                                                      
+ 027860                                                                         
+ 027861                                                                         
+ 027862        5300-F-IMPRIMIR-SEPARADOR. EXIT.                                 
+ 027863                                                                         
+ 027864        5500-IMPRIMIR-TITULOS.                                           
+ 027865            MOVE WS-CUENTA-PAGINA      TO WS-PAGINA.                     
+ 027866            MOVE 3 TO WS-CUENTA-LINEA.                                   
+ 027867            ADD  1 TO WS-CUENTA-PAGINA.                                  
+ 027868                                                                         
+ 027869            WRITE REG-LISTADO FROM WS-SEPARADOR AFTER PAGE.              
+ 027870                                                                         
+ 027871               IF FS-LIS IS NOT EQUAL '00'                               
+ 027872                 DISPLAY '* ERROR EN WRITE LISTADO = '                   
+ 027873                                             FS-LIS                      
+ 027874                 MOVE 9999 TO RETURN-CODE                                
+ 027875                 SET WS-FIN-LECTURA TO TRUE                              
+ 027876              END-IF.                                                    
+ 027877                                                                         
+ 027878            WRITE REG-LISTADO FROM WS-REG-TITULO AFTER 1.                
+ 027879                                                                         
+ 027880               IF FS-LIS IS NOT EQUAL '00'                               
+ 027881                 DISPLAY '* ERROR EN WRITE LISTADO = '                   
+ 027882                                             FS-LIS                      
+ 027883                 MOVE 9999 TO RETURN-CODE                                
+ 027884                 SET WS-FIN-LECTURA TO TRUE                              
+ 027885              END-IF.                                                    
+ 027886                                                                         
+ 027887            WRITE REG-LISTADO FROM WS-SEPARADOR AFTER 1.                 
+ 027888                                                                         
+ 027889               IF FS-LIS IS NOT EQUAL '00'                               
+ 027890                 DISPLAY '* ERROR EN WRITE LISTADO = '                   
+ 027891                                             FS-LIS                      
+ 027892                 MOVE 9999 TO RETURN-CODE                                
+ 027893                 SET WS-FIN-LECTURA TO TRUE                              
+ 027894              END-IF.                                                    
+ 027895                                                                         
+ 027896        5500-F-IMPRIMIR-TITULOS. EXIT.                                   
+ 027897                                                                         
+ 027898        9999-I-FINAL.                                                    
+ 027899                                                                         
+ 027901            MOVE WS-TOT-LEI TO WS-PRINT                                  
+ 027902            DISPLAY "TOTAL NOVEDADES LEIDAS       = " WS-PRINT           
+ 027903            MOVE WS-TOT-ERR TO WS-PRINT                                  
+ 027904            DISPLAY "TOTAL NOVEDADES CON ERROR    = " WS-PRINT           
+ 027905            MOVE WS-TOT-ALTAS TO WS-PRINT                                
+ 027906            DISPLAY "TOTAL ALTA NOVEDADES         = " WS-PRINT           
+ 027907            MOVE  WS-TOT-MOD TO WS-PRINT                                 
+ 027908            DISPLAY "TOTAL MODIFICACION NOVEDADES = " WS-PRINT           
+ 027909                                                                         
+ 027910            CLOSE ENTRADA                                                
+ 028000               IF FS-ENT IS NOT EQUAL '00'                               
+ 028100                 DISPLAY '* ERROR EN CLOSE ENTRADA = '                   
+ 028200                                             FS-ENT                      
+ 028300                 MOVE 9999 TO RETURN-CODE                                
+ 028400                 SET WS-FIN-LECTURA TO TRUE                              
+ 028500               END-IF.                                                   
+ 028600                                                                         
+ 029320            CLOSE LISTADO                                                
+ 029330               IF FS-LIS IS NOT EQUAL '00'                               
+ 029340                 DISPLAY '* ERROR EN CLOSE LISTADO = '                   
+ 029350                                             FS-LIS                      
+ 029360                 MOVE 9999 TO RETURN-CODE                                
+ 029370                 SET WS-FIN-LECTURA TO TRUE                              
+ 029380               END-IF.                                                   
+ 029390                                                                         
+ 029391       *       EXEC SQL                                                  
+ 029392       *           ROLLBACK                                              
+ 029393       *       END-EXEC.                                                 
+ 029400                                                                         
+ 029500        9999-F-FINAL.  EXIT.                                             
+ 029600                                                                         
+ 029700       *                                                                 
+ ****** **************************** Bottom of Data ****************************
