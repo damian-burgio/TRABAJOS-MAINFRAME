@@ -1,0 +1,241 @@
+copy facturab
+
+*      Sucursal   Clave 1                              
+    05 ws-fac-suc                    pic x(03).        
+*      Rubro      Clave 2                              
+    05 ws-fac-rub                    pic x(03).        
+*      Rubro      Descripcion                          
+    05 ws-fac-rub-desc               pic x(12).        
+*      Articulo   Clave 3                              
+    05 ws-fac-artic                  pic x(05).        
+*      Articulo   Descripcion                          
+    05 ws-fac-artic-desc             pic x(44).        
+*      Articulo   Precio de Venta                      
+    05 ws-fac-importe                pic 9(06)v9(02).  
+
+
+
+
+ =COLS> ----+----1----+----2----+----3----+----4----+----5----+----6----+----7--
+	      *------------------------*          
+	       IDENTIFICATION DIVISION.           
+              *------------------------*          
+               PROGRAM-ID. CORSUPE3.              
+              *---------------------*             
+               ENVIRONMENT DIVISION.              
+               CONFIGURATION SECTION.             
+               SPECIAL-NAMES.                     
+               DECIMAL-POINT IS COMMA.        
+                                    
+              *---------------------*             
+               INPUT-OUTPUT SECTION.              
+ 	       FILE-CONTROL.                      
+		   SELECT         ENTRADA         
+		   ASSIGN      TO DDENTRA         
+		   FILE STATUS IS SW-FS-ENTRADA.  
+                                    
+	      *--------------*                    
+               DATA DIVISION.                     
+	      *--------------*                    
+              *-------------*                     
+               FILE SECTION.                      
+              *-------------*                     
+               FD  ENTRADA                        
+               BLOCK CONTAINS  0 RECORDS      
+	       RECORDING MODE IS F.                                         
+                                                                        
+               01 REG-ENTRADA                      PIC X(75).                   
+              *------------------------*                                        
+               WORKING-STORAGE SECTION.                                         
+              *------------------------*                                        
+               01 SW-FS-ENTRADA                    PIC X(02).                   
+         	  88 SW-FS-OK                      VALUE '00'.          
+	          88 SW-FS-EOF                     VALUE '10'.          
+        	  88 SW-FS-NOK                     VALUE '01' THRU '09' 
+                                                         '11' THRU '99'.
+	       01 WS-REG-ENTRADA.                                               
+        	  COPY FACTURAB.                                                
+                                                                        
+	       01 WS-VARIABLES.                                                 
+        	  05 WS-SUC-ANT                    PIC X(03).                   
+	          05 WS-RUB-ANT                    PIC X(03).                   
+	          05 WS-ART-ANT                    PIC X(05).                   
+        	  05 WS-IMP-EDI                    PIC $(3).$(3).$(3).$(2)9,99. 
+	          05 WS-FAC-EDI                    PIC ZZZ99.                   
+                                                                        
+	       01 AC-ACUMULADORES.                                              
+        	  05 AC-RUB-IMP                    PIC 9(12)V99.                
+	          05 AC-RUB-IMP                    PIC 9(12)V99.                
+        	  05 AC-SUC-IMP                    PIC 9(12)V99.                
+	          05 AC-ART-IMP                    PIC 9(12)V99.                
+        	  05 AC-TOT-IMP                    PIC 9(12)V99.                
+	                                                                        
+       	       01 CN-CONTADORES.                                                
+	          05 CN-FAC-READ                   PIC 9(10).                   
+        	  05 CN-FAC-SUC                    PIC 9(10).                   
+	          05 CN-FAC-ARTIC                  PIC 9(10).                   
+        	  05 CN-FAC-RUB                    PIC 9(10).                   
+                                                                        
+	       01 CN-SEPARADOR                     PIC X(71) VALUE              
+        	   '|-----------------------------|-----------------------------
+              -    '|----------'.                                               
+	      *-------------------*                                             
+       	       PROCEDURE DIVISION.                                              
+	      *-------------------*                                             
+	      **************************************                            
+	      *  CUERPO PRINCIPAL DEL PROGRAMA     *                            
+	      **************************************                            
+	      *--------------*                                                  
+	       0000-CORTCONT.                                                   
+	      *--------------*                                                  
+                                                                        
+	           PERFORM 1000-I-INICIO                                        
+        	      THRU 1000-F-INICIO                                        
+                                                                        
+	           PERFORM 2000-I-PROCESO                                       
+        	      THRU 2000-F-PROCESO                                       
+                                                                        
+	           PERFORM 9999-I-FINAL                                         
+        	      THRU 9999-F-FINAL                                         
+                                                                        
+	           GOBACK.
+        	                                                           
+	      **************************************                            
+	      *  CUERPO INICIO APERTURA ARCHIVOS   *                            
+	      **************************************                            
+	      *--------------*                                                  
+	       1000-I-INICIO.                                                   
+	      *--------------*                                                  
+        	   OPEN INPUT ENTRADA                                           
+                                                                        
+	           IF NOT SW-FS-OK                                              
+	              DISPLAY '* ERROR EN OPEN ENTRADA= '        SW-FS-ENTRADA  
+        	      MOVE 9999 TO RETURN-CODE                                  
+	           END-IF.
+	      *--------------*                                                  
+	       1000-F-INICIO.                                                   
+	      *--------------*                                                  
+        	   EXIT.                                                        
+                                                                        
+	      **************************************                            
+	      *  CUERPO PRINCIPAL DE PROCESOS      *                            
+	      **************************************                            
+	      *---------------*                                                 
+	       2000-I-PROCESO.                                                  
+	      *---------------*                                                 
+        	   READ ENTRADA                            INTO WS-REG-ENTRADA  
+                                                                        
+	           MOVE 0                                  TO CN-FAC-READ       
+        	   MOVE 0                                  TO AC-TOT-IMP        
+                                                                        
+	           PERFORM                                                      
+        	     UNTIL SW-FS-EOF                                            
+                	OR SW-FS-NOK                                            
+                                                                        
+	                   MOVE WS-FAC-SUC                 TO WS-SUC-ANT        
+        	           MOVE 0                          TO AC-SUC-IMP        
+                	   MOVE 0                          TO CN-FAC-SUC        
+                                                                        
+	      * ---               CORTE X SUCURSAL               --- *                                                                                                                          
+	                   PERFORM                                              
+        	             UNTIL SW-FS-EOF                                    
+                	        OR SW-FS-NOK                                    
+                        	OR WS-FAC-SUC NOT = WS-SUC-ANT                  
+                                                                        
+	                           MOVE WS-FAC-RUB         TO WS-RUB-ANT        
+        	                   MOVE 0                  TO AC-RUB-IMP        
+                                                                        
+                                                                        
+	      * ---               CORTE X RUBRO                  --- *          
+        	                PERFORM                                         
+                	          UNTIL SW-FS-EOF                               
+                        	    OR SW-FS-NOK                                
+	                            OR WS-FAC-SUC NOT = WS-SUC-ANT              
+        	                    OR WS-FAC-RUB NOT = WS-RUB-ANT              
+                                                                        
+                	               MOVE 0              TO AC-ART-IMP        
+                        	       MOVE WS-FAC-ARTIC   TO WS-ART-ANT        
+                                                                        
+	      *******              CORTE X ARTIC                                
+        	                                                                
+                	               PERFORM                                  
+                        	         UNTIL SW-FS-EOF                        
+                                	    OR SW-FS-NOK                        
+            		                    OR WS-FAC-SUC   NOT = WS-SUC-ANT    
+                        	            OR WS-FAC-RUB   NOT = WS-RUB-ANT    
+                                	    OR WS-FAC-ARTIC NOT = WS-ART-ANT    
+                                                                        
+	                                    ADD 1            TO CN-FAC-ARTIC    
+        	                            ADD WS-FAC-IMPORTE TO AC-ART-IMP    
+                	                                                        
+                        	            READ ENTRADA INTO WS-REG-ENTRADA    
+                                                                        
+	                               END-PERFORM                              
+        	                                                                
+                	         ADD  CN-FAC-ARTIC   TO CN-FAC-RUB              
+                        	 MOVE CN-FAC-ARTIC   TO WS-FAC-EDI              
+	                         MOVE 0              TO CN-FAC-ARTIC            
+        	                 ADD  AC-ART-IMP     TO AC-RUB-IMP              
+                	         MOVE AC-ART-IMP     TO WS-IMP-EDI              
+                        	 DISPLAY '  ARTIC '           WS-ART-ANT        
+                                	 ' REGISTROS LEIDOS ' WS-FAC-EDI        
+	                                 ' IMPOR.ARTIC'       WS-IMP-EDI        
+                                                                        
+        	                 DISPLAY CN-SEPARADOR                           
+                	                                                        
+                        	END-PERFORM                                     
+  	     * ---             DISPLAY X RUBRO                                 
+        	               ADD  CN-FAC-RUB              TO CN-FAC-SUC        
+                	       MOVE CN-FAC-RUB              TO WS-FAC-EDI        
+	                       MOVE 0                       TO CN-FAC-RUB        
+        	               ADD  AC-RUB-IMP              TO AC-SUC-IMP        
+                	       MOVE AC-RUB-IMP              TO WS-IMP-EDI        
+	                       DISPLAY ' RUBRO '            WS-RUB-ANT           
+        	                       ' REGISTROS LEIDOS ' WS-FAC-EDI           
+                	               ' IMPOR.RUBRO'       WS-IMP-EDI           
+                                                                         
+	                       DISPLAY CN-SEPARADOR                              
+                                                                         
+        	            END-PERFORM                                          
+                                                                         
+	       * ---             DISPLAY X SUCURSAL               --- *          
+        	         ADD  CN-FAC-SUC                    TO CN-FAC-READ       
+                	 MOVE CN-FAC-SUC                    TO WS-FAC-EDI        
+	                 MOVE 0                             TO CN-FAC-SUC        
+        	         ADD  AC-SUC-IMP                    TO AC-TOT-IMP        
+                	 MOVE AC-SUC-IMP                    TO WS-IMP-EDI        
+	                 DISPLAY ' SUCURSAL '             WS-SUC-ANT             
+        	                 ' REGISTROS LEIDOS '     WS-FAC-EDI             
+                	         ' IMPOR.SUCUR '          WS-IMP-EDI             
+                                                                        
+	              DISPLAY CN-SEPARADOR                                     
+                                                                       
+        	  END-PERFORM                                                  
+                                                                       
+	     * ---             DISPLAY TOTALES                  --- *          
+        	  MOVE AC-TOT-IMP                         TO WS-IMP-EDI        
+	          MOVE CN-FAC-READ                        TO WS-FAC-EDI        
+        	  DISPLAY ' IMPORTES'                                          
+                	  ' REGISTR. LEIDOS '                WS-FAC-EDI        
+	                  ' SUMA DE IMPORTES '               WS-IMP-EDI        
+        	  DISPLAY CN-SEPARADOR                                         
+	          .                                                            
+	     *---------------*                                                 
+	      2000-F-PROCESO.                                                  
+	     *---------------*                                                 
+        	  EXIT.                                                        
+                                                                       
+                                                                       
+	     *-------------*                                                   
+	      9999-I-FINAL.                                                    
+	     *-------------*                                                   
+        	  CLOSE ENTRADA                                                
+	          IF NOT SW-FS-OK                                              
+	              DISPLAY '* ERROR EN CLOSE ENTRADA= '       SW-FS-ENTRADA  
+        	      MOVE 9999 TO RETURN-CODE                                  
+	           END-IF.                                                       
+
+	      *-------------*                                                   
+	       9999-F-FINAL.                                                    
+	      *-------------*                                                   
+        	   EXIT.                                                        
