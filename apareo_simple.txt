@@ -1,0 +1,365 @@
+ =COLS> ----+----1----+----2----+----3----+----4----+----5----+----6----+----7--
+ ***************************** Top of Data ******************************
+ 	      IDENTIFICATION DIVISION.                                         
+	      PROGRAM-ID APAREO.                                               
+	     **********************************************************        
+             *                                                        *        
+             *  APAREO SIMPLE: UN MOVIMIENTO POR CUENTA               *        
+             *  PROGRAMA PARA IMPUTAR  DEPOSITOS EN CUENTAS CORRIENTES*        
+             *  APAREAR LA CUENTA DEL CLIENTE CON CUENTA DEL MOVIMIENT*        
+             *  AMBAS  ENTRADAS CLASIFICADAS X CLIENTE CUENTA         *        
+             *                                                        *        
+	     **********************************************************        
+	     *      MANTENIMIENTO DE PROGRAMA                         *        
+	     **********************************************************        
+	     *  FECHA   *    DETALLE        * COD *                            
+	     **************************************                            
+	     *          *                   *     *                            
+	     *          *                   *     *                            
+	     **************************************                            
+	      ENVIRONMENT DIVISION.                                            
+	      INPUT-OUTPUT SECTION.                                            
+	      FILE-CONTROL.                                                    
+        	    SELECT CLIENTE ASSIGN DDCLIEN                              
+                	   FILE STATUS IS WS-CLI-CODE.                         
+                                                                        
+	            SELECT MOVIMI  ASSIGN DDMOVIM                              
+        	           FILE STATUS IS WS-MOV-CODE.                         
+                                                                        
+	            SELECT SALIDA  ASSIGN DDSAL                                
+        	           FILE STATUS IS WS-SAL-CODE.                         
+                                                                        
+	      DATA DIVISION.                                                   
+	      FILE SECTION.                                                    
+	      FD CLIENTE                                                       
+        	  BLOCK CONTAINS 0 RECORDS                                    
+	           RECORDING MODE IS F.                                        
+                                                                        
+	      01 REG-CLIENTE    PIC X(30).                                     
+                                                                        
+	      FD MOVIMI                                                        
+                   BLOCK CONTAINS 0 RECORDS                                    
+	           RECORDING MODE IS F.                                        
+                                                                        
+	      01 REG-MOVIMI     PIC X(80).                                     
+                                                                        
+	      FD SALIDA                                                        
+        	   BLOCK CONTAINS 0 RECORDS                                    
+	           RECORDING MODE IS F.                                        
+                                                                        
+	      01 REG-SALIDA     PIC X(30).                                     
+                                                                        
+	     **************************************                            
+	      WORKING-STORAGE SECTION.                                         
+	     **************************************                            
+       77  FILLER        PIC X(26) VALUE '* INICIO WORKING-STORAGE *'.  
+       77  FILLER        PIC X(26) VALUE '* CODIGOS RETORNO FILES  *'.  
+       77  WS-CLI-CODE      PIC XX    VALUE SPACES.                     
+       77  WS-MOV-CODE      PIC XX    VALUE SPACES.                     
+       77  WS-SAL-CODE      PIC XX    VALUE SPACES.                     
+                                                                        
+       01  WS-STATUS-FIN    PIC X.                                      
+           88  WS-FIN-LECTURA         VALUE 'Y'.                        
+           88  WS-NO-FIN-LECTURA      VALUE 'N'.                        
+                                                                        
+       01  WS-STATUS-CLI    PIC X.                                      
+           88  WS-FIN-CLI             VALUE 'Y'.                        
+           88  WS-NO-FIN-CLI          VALUE 'N'.                        
+                                                                        
+       01  WS-STATUS-MOV    PIC X.                                      
+           88  WS-FIN-MOV             VALUE 'Y'.                        
+           88  WS-NO-FIN-MOV          VALUE 'N'.                        
+                                                                        
+      **************************************                            
+      *         LAYOUT CLIENTES            *                            
+      **************************************                            
+       01  WS-REG-CLIENTE.                                              
+           03  WS-CLI-CLAVE.                                            
+              05  WS-CLI-NRO          PIC 9(05)    VALUE ZEROS.     
+              05  WS-CLI-TIPO         PIC 9(02)    VALUE ZEROS.     
+              05  WS-CLI-CUENTA       PIC 9(08)    VALUE ZEROS.     
+           03  WS-CLI-SALDO           PIC S9(09)V99   VALUE ZEROS.     
+           03  FILLER                 PIC X(04)       VALUE SPACES.    
+                                                                    
+      **************************************                        
+      * LAY-OUT MOVIMIENTOS                                         
+      **************************************                        
+       01  WS-REG-MOVIMI.                                           
+           03  WS-MOV-CLAVE.                                        
+               05  WS-MOV-NRO              PIC 9(05)   VALUE ZEROS. 
+               05  WS-MOV-TIPO             PIC 9(02)   VALUE ZEROS. 
+               05  WS-MOV-CUENTA           PIC 9(08)   VALUE ZEROS. 
+           03  WS-MOV-IMPORTE              PIC 9(09)V99    VALUE ZEROS. 
+           03  FILLER                      PIC X(54)       VALUE SPACES.
+                                                                    
+                                                                    
+      **************************************                        
+      *         LAYOUT SALIDA              *                        
+      **************************************                        
+       01  WS-REG-SALIDA.                                           
+           03  WS-SAL-NRO          PIC 9(05)    VALUE ZEROS.        
+           03  WS-SAL-TIPO         PIC 9(02)    VALUE ZEROS.        
+           03  WS-SAL-CUENTA       PIC 9(08)    VALUE ZEROS.        
+           03  WS-SAL-SALDO        PIC S9(09)V99   VALUE ZEROS.         
+           03  FILLER              PIC X(04)       VALUE SPACES.        
+                                                                        
+                                                                        
+      ********     CONTADOR DE LEIDOS Y GRABADOS  *                     
+                                                                        
+       77  WS-LEIDOS-MOV        PIC 9(05)        VALUE ZEROS.           
+       77  WS-LEIDOS-CLI        PIC 9(05)        VALUE ZEROS.           
+       77  WS-ERRONEOS-MOV      PIC 9(05)        VALUE ZEROS.           
+       77  WS-GRABADOS-SAL      PIC 9(05)        VALUE ZEROS.           
+                                                                        
+       77  WS-LEYEN-MOVR        PIC X(35) VALUE                         
+                        'CANTIDAD DE MOVIMIENTOS LEIDOS:  '.            
+                                                                        
+       77  WS-LEYEN-MOVE        PIC X(35) VALUE                         
+                        'CANTIDAD DE MOVIMIENTOS ERROR :  '.            
+                                                                        
+       77  WS-LEYEN-CLIR        PIC X(35) VALUE                         
+                        'CANTIDAD DE CLIENTES    LEIDOS:  '.            
+                                                                        
+       77  WS-LEYEN-CLIW        PIC X(35) VALUE                         
+                        'CANTIDAD DE CLIENTES  GRABADOS: '.             
+                                                                        
+      ********     FECHA DE PROCESO ***************                     
+       01  WS-FECHA.                                                    
+           03  WS-FECHA-AA      PIC 99            VALUE ZEROS.          
+           03  WS-FECHA-MM      PIC 99            VALUE ZEROS.          
+           03  WS-FECHA-DD      PIC 99            VALUE ZEROS.          
+                                                                        
+       77  FILLER        PIC X(26) VALUE '* FINAL  WORKING-STORAGE *'.  
+                                                                        
+      ***************************************************************.  
+       PROCEDURE DIVISION.                                              
+      **************************************                            
+      *                                    *                            
+      *  CUERPO PRINCIPAL DEL PROGRAMA     *                            
+      *                                    *                            
+      **************************************                            
+       MAIN-PROGRAM.                                                    
+                                                                        
+           PERFORM 1000-INICIO  THRU   F-1000-INICIO.                   
+                                                                        
+           PERFORM 2000-PROCESO  THRU  F-2000-PROCESO                   
+                   UNTIL WS-FIN-LECTURA.                                
+                                                                        
+           PERFORM 9999-FINAL    THRU  F-9999-FINAL.                    
+                                                                        
+       F-MAIN-PROGRAM. GOBACK.                                          
+                                                                        
+      **************************************                            
+      *                                    *                            
+      *  CUERPO INICIO APERTURA ARCHIVOS   *                            
+      *                                    *                            
+      **************************************                            
+       1000-INICIO.                                                     
+           ACCEPT WS-FECHA FROM DATE.                                   
+                                                                        
+                                                                        
+           SET WS-NO-FIN-LECTURA TO TRUE.                               
+                                                                        
+           OPEN INPUT  CLIENTE.                                         
+           IF WS-CLI-CODE IS NOT EQUAL '00'                             
+              DISPLAY '* ERROR EN OPEN CLIENTE = ' WS-CLI-CODE          
+              MOVE 9999 TO RETURN-CODE                                  
+              SET  WS-FIN-LECTURA TO TRUE                               
+           END-IF.                                                      
+                                                                        
+           OPEN INPUT  MOVIMI.                                          
+           IF WS-MOV-CODE IS NOT EQUAL '00'                             
+              DISPLAY '* ERROR EN OPEN MOVIMI  = ' WS-MOV-CODE          
+              MOVE 9999 TO RETURN-CODE                                  
+              SET  WS-FIN-LECTURA TO TRUE                               
+           END-IF.                                                      
+                                                                        
+           OPEN OUTPUT SALIDA.                                          
+           IF WS-SAL-CODE IS NOT EQUAL '00'                             
+              DISPLAY '* ERROR EN OPEN SALIDA  = ' WS-SAL-CODE          
+              MOVE 9999 TO RETURN-CODE                                  
+              SET  WS-FIN-LECTURA TO TRUE                               
+           END-IF.                                                      
+                                                                        
+            PERFORM 3000-LEER-MOVI  THRU F-3000-LEER-MOVI.              
+            PERFORM 4000-LEER-CLIE  THRU F-4000-LEER-CLIE.              
+                                                                        
+                                                                        
+       F-1000-INICIO.   EXIT.                                           
+                                                                        
+      **************************************                            
+      *                                    *                            
+      *  CUERPO PRINCIPAL DE PROCESOS      *                            
+      *  LECTURA FILE INPUT CLASIFICADO    *                            
+      *  APAREO ARCHIVOS DE ENTRADA        *                            
+      *                                    *                            
+      **************************************                            
+       2000-PROCESO.                                                    
+                                                                        
+           IF WS-CLI-CLAVE = WS-MOV-CLAVE                               
+               PERFORM 5000-PROCESAR-CLIENTE                            
+                          THRU     F-5000-PROCESAR-CLIENTE              
+                                                                        
+                                                                        
+               PERFORM 3000-LEER-MOVI                                   
+                         THRU   F-3000-LEER-MOVI                        
+                                                                        
+                PERFORM 4000-LEER-CLIE                                  
+                            THRU  F-4000-LEER-CLIE                      
+           ELSE                                                         
+                                                                        
+             IF WS-CLI-CLAVE > WS-MOV-CLAVE                             
+                 PERFORM 3000-LEER-MOVI                                 
+                         THRU   F-3000-LEER-MOVI                        
+             ELSE                                                       
+                  PERFORM 4000-LEER-CLIE                                
+                            THRU  F-4000-LEER-CLIE                      
+                                                                        
+             END-IF                                                     
+                                                                        
+           END-IF.                                                      
+      *************************************************************     
+      * CONTROL FIN DE ARCHIVOS DE ENTRADA, PARA FIN PROGRAMA           
+      *************************************************************     
+                                                                        
+           IF WS-FIN-MOV AND WS-FIN-CLI                                 
+              SET  WS-FIN-LECTURA TO TRUE                               
+           END-IF.                                                      
+                                                                        
+       F-2000-PROCESO. EXIT.                                            
+                                                                        
+      **************************************                            
+      * LECTURA MOVIMIENTOS                *                            
+      **************************************                            
+       3000-LEER-MOVI.                                                  
+                                                                        
+           READ MOVIMI  INTO WS-REG-MOVIMI                              
+                        AT END SET WS-FIN-MOV  TO TRUE                  
+                                MOVE HIGH-VALUE TO WS-MOV-CLAVE.        
+                                                                        
+           EVALUATE WS-MOV-CODE                                         
+             WHEN '00'                                                  
+                            ADD 1 TO WS-LEIDOS-MOV                      
+              WHEN '10'                                                 
+              SET WS-FIN-MOV  TO TRUE                                   
+                                                                        
+           WHEN OTHER                                                   
+              DISPLAY '* ERROR EN LECTURA MOVIMI  = ' WS-MOV-CODE       
+              MOVE 9999 TO RETURN-CODE                                  
+              SET WS-FIN-MOV  TO TRUE                                   
+                                                                        
+           END-EVALUATE.                                                
+                                                                        
+                                                                        
+       F-3000-LEER-MOVI. EXIT.                                          
+                                                                        
+      **************************************                            
+      * LECTURA CLIENTES                   *                            
+      **************************************                            
+       4000-LEER-CLIE.                                                  
+                                                                        
+           READ CLIENTE INTO WS-REG-CLIENTE                             
+                        AT END SET WS-FIN-CLI TO TRUE                   
+                                MOVE HIGH-VALUE TO WS-CLI-CLAVE.        
+                                                                        
+           EVALUATE WS-CLI-CODE                                         
+             WHEN '00'                                                  
+                            ADD 1 TO WS-LEIDOS-CLI                      
+                                                                        
+              WHEN '10'                                                 
+              SET WS-FIN-CLI     TO TRUE                                
+                                                                        
+           WHEN OTHER                                                   
+              DISPLAY '* ERROR EN LECTURA CLIENTE = ' WS-CLI-CODE       
+              MOVE 9999 TO RETURN-CODE                                  
+              SET WS-FIN-CLI     TO TRUE                                
+                                                                        
+           END-EVALUATE.                                                
+                                                                        
+       F-4000-LEER-CLIE. EXIT.                                          
+                                                                        
+       5000-PROCESAR-CLIENTE.                                           
+                                                                        
+      * VALIDAR QUE SEA CUENTA CORRIENTE   *                            
+                                                                        
+           IF WS-CLI-TIPO     EQUAL 02                                  
+              NEXT SENTENCE                                             
+           ELSE                                                         
+                 DISPLAY 'ERROR TIPO CUENTA:'                           
+                       WS-MOV-CLAVE                                     
+                 ADD 1 TO WS-ERRONEOS-MOV                               
+                 GO TO   F-5000-PROCESAR-CLIENTE                        
+           END-IF.                                                      
+                                                                        
+           MOVE WS-REG-CLIENTE  TO WS-REG-SALIDA                        
+           COMPUTE  WS-SAL-SALDO = WS-SAL-SALDO + WS-MOV-IMPORTE        
+           PERFORM 6000-GRABAR-SALIDA                                   
+                      THRU  F-6000-GRABAR-SALIDA.                       
+                                                                        
+       F-5000-PROCESAR-CLIENTE. EXIT.                                   
+                                                                        
+      ***************************************************               
+      *PARRAFO PARA GRABAR LA SALIDA ACTUALIZADA                        
+      ***************************************************              
+                                                                       
+       6000-GRABAR-SALIDA.                                             
+                                                                       
+           WRITE REG-SALIDA   FROM WS-REG-SALIDA                       
+                                                                       
+                                                                       
+           IF WS-SAL-CODE =  ZEROS                                     
+                  ADD 1 TO WS-GRABADOS-SAL                             
+           ELSE                                                        
+                DISPLAY '* ERROR EN WRITE SALIDA  = '                  
+                                            WS-SAL-CODE                
+                MOVE 9999 TO RETURN-CODE                               
+                SET WS-FIN-LECTURA TO TRUE                             
+           END-IF.                                                     
+                                                                       
+                                                                       
+       F-6000-GRABAR-SALIDA. EXIT.                                     
+                                                                       
+                                                                       
+      **************************************                           
+      *                                    *                           
+      *  CUERPO FINAL CIERRE DE FILES      *                           
+      *                                    *                           
+      **************************************                           
+       9999-FINAL.                                                      
+                                                                        
+           CLOSE CLIENTE                                                
+              IF WS-CLI-CODE IS NOT EQUAL '00'                          
+                DISPLAY '* ERROR EN CLOSE CLIENTE = '                   
+                                            WS-CLI-CODE                 
+                MOVE 9999 TO RETURN-CODE                                
+                SET WS-FIN-LECTURA TO TRUE                              
+             END-IF.                                                    
+                                                                        
+           CLOSE  MOVIMI                                                
+              IF WS-MOV-CODE IS NOT EQUAL '00'                          
+                DISPLAY '* ERROR EN CLOSE MOVIMI   ='                   
+                                            WS-MOV-CODE                 
+                MOVE 9999 TO RETURN-CODE                                
+                SET WS-FIN-LECTURA TO TRUE                              
+           END-IF.                                                      
+                                                                        
+           CLOSE SALIDA                                                 
+              IF WS-SAL-CODE IS NOT EQUAL '00'                          
+                DISPLAY '* ERROR EN CLOSE SALIDA  = '                   
+                                            WS-SAL-CODE                 
+                MOVE 9999 TO RETURN-CODE                                
+                SET WS-FIN-LECTURA TO TRUE                              
+             END-IF.                                                    
+                                                                        
+      **************************************                            
+      *   MOSTRAR TOTALES DE CONTROL                                    
+      **************************************                            
+                                                                        
+           DISPLAY WS-LEYEN-MOVR  WS-LEIDOS-MOV.                        
+           DISPLAY WS-LEYEN-CLIR  WS-LEIDOS-CLI.                        
+           DISPLAY WS-LEYEN-CLIW  WS-GRABADOS-SAL .                     
+           DISPLAY WS-LEYEN-MOVE  WS-ERRONEOS-MOV.                      
+                                                                        
+       F-9999-FINAL.                                                    
+           EXIT.                                                        
+ **************************** Bottom of Data ****************************
