@@ -1,0 +1,305 @@
+---1----+----2----+----3----+----4----+----5----+----6----+----7--
+              
+
+ IDENTIFICATION DIVISION.                                
+*------------------------*                               
+ PROGRAM-ID. PGMDB123.                                   
+******************************************************** 
+*                                                      * 
+*          TP 44 - CHECK-POINT 35 BATCH DB2            * 
+*                     23-11-2022                       * 
+*                                                      * 
+******************************************************** 
+ ENVIRONMENT DIVISION.                                   
+*---------------------*                                  
+ CONFIGURATION SECTION.                                  
+ SPECIAL-NAMES.                                          
+     DECIMAL-POINT IS COMMA.                             
+ INPUT-OUTPUT SECTION.                                   
+ FILE-CONTROL.                                           
+     SELECT VSAM   ASSIGN DDVSAM                         
+            ORGANIZATION IS INDEXED                      
+            ACCESS MODE IS SEQUENTIAL                    
+            RECORD KEY IS KEY-VSAM                       
+            FILE STATUS IS FS-VSAM.                      
+                                                         
+ DATA DIVISION.                                          
+ FILE SECTION.                                     
+                                                   
+* TIPCUEN 1:2  NROCUEN 3:3                         
+ FD VSAM.                                          
+ 01 REG-VSAM.                                      
+     03 KEY-VSAM           PIC 9(05).              
+     03 FILLER             PIC X(18).              
+                                                   
+ WORKING-STORAGE SECTION.                          
+*------------------------*                         
+                                                   
+ 01  FS-VSAM               PIC X(02) VALUE SPACES. 
+                                                   
+ 01  WS-STATUS-FIN         PIC X.                  
+     88  WS-FIN-LECTURA           VALUE 'Y'.       
+     88  WS-NO-FIN-LECTURA        VALUE 'N'.       
+                                                   
+ 01  WS-STATUS-NOV         PIC X.                  
+     88  WS-FIN-NOV               VALUE 'Y'.       
+     88  WS-NO-FIN-NOV            VALUE 'N'.       
+                                                   
+ 01  WS-STATUS-SQL         PIC X.                  
+     88  WS-FIN-SQL               VALUE 'Y'.       
+      88  WS-NO-FIN-SQL            VALUE 'N'.                    
+                                                                 
+  77  WS-SQLCODE         PIC +++999 USAGE DISPLAY VALUE ZEROS.   
+                                                                 
+      EXEC SQL                                                   
+        INCLUDE SQLCA                                            
+      END-EXEC.                                                  
+                                                                 
+      EXEC SQL                                                   
+        INCLUDE TBCURCTA                                         
+      END-EXEC.                                                  
+                                                                 
+      EXEC SQL                                                   
+        INCLUDE TBCURCLI                                         
+      END-EXEC.                                                  
+                                                                 
+      EXEC SQL                                                   
+        DECLARE CURSOR1 CURSOR FOR                               
+        SELECT TIPCUEN,                                          
+               NROCUEN,                                          
+               SUCUEN,                                           
+               NROCLI,                                           
+              SALDO                              
+       FROM ITPARUT.TBCURCTA                     
+         WHERE SUCUEN = 1                        
+         ORDER BY TIPCUEN,                       
+                  NROCUEN                        
+     END-EXEC.                                   
+                                                 
+     COPY NOVCTA.                                
+                                                 
+* VARIABLES *                                    
+ 01  KEY-TABLA.                                  
+     03  CLAVE-TIPCUEN  PIC X(2)   VALUE ZEROS.  
+     03  CLAVE-NROCUEN  PIC 9(5)   VALUE ZEROS.  
+                                                 
+ 01  KEY-NOVED.                                  
+     03  CLAVE-TIPCUEN2 PIC X(2)   VALUE ZEROS.  
+     03  CLAVE-NROCUEN2 PIC 9(5)   VALUE ZEROS.  
+                                                 
+* CONTADORES *                                   
+ 01  CN-TOT-LEIDOS      PIC 9(03)   VALUE ZEROS. 
+ 01  CN-TOT-ENCONTRADOS PIC 9(03)   VALUE ZEROS. 
+ 01  CN-TOT-NOENC       PIC 9(03)   VALUE ZEROS. 
+
+* IMPRESION *                                           
+ 01 CLIENTE-NO-ENCONTRADO.                               
+    05 FILLER     PIC X(13) VALUE 'CLIENTE NRO. '.      
+    05 FILLER     PIC X(02) VALUE SPACES.               
+    05 IMP-NROCLI PIC X(06).                            
+                                                        
+* VARIABLES DE IMPRESION                                
+ 77  IMPR-TOTALES       PIC ZZ9             VALUE ZEROS.
+ 77  IMPR-SALDO         PIC $$$.$$$.$$9,99- VALUE ZEROS.
+                                                        
+ 01  WS-SEPARADOR       PIC X(35)   VALUE ALL '='.      
+                                                        
+ PROCEDURE DIVISION.                                    
+*-------------------*                                   
+**************************************                  
+*  CUERPO PRINCIPAL DEL PROGRAMA     *                  
+**************************************                  
+ MAIN-PROGRAM.                                          
+*-------------*                                         
+                                                        
+     PERFORM 1000-I-INICIO                              
+        THRU 1000-F-INICIO                              
+                                                  
+     PERFORM 2000-I-PROCESO                       
+        THRU 2000-F-PROCESO UNTIL WS-FIN-LECTURA  
+                                                  
+     PERFORM 9999-I-FINAL                         
+        THRU 9999-F-FINAL                         
+                                                  
+     GOBACK                                       
+     .                                            
+**************************************            
+*  CUERPO INICIO APERTURA ARCHIVOS   *            
+**************************************            
+ 1000-I-INICIO.                                   
+*--------------*                                  
+                                                  
+     SET WS-NO-FIN-LECTURA TO TRUE                
+     SET WS-NO-FIN-NOV     TO TRUE                
+     SET WS-NO-FIN-SQL     TO TRUE                
+                                                  
+     OPEN INPUT VSAM                              
+                                                  
+     IF FS-VSAM IS NOT EQUAL '00'                 
+        DISPLAY '* ERROR EN OPEN VSAM = ' FS-VSAM 
+        MOVE 9999 TO RETURN-CODE                          
+        SET WS-FIN-LECTURA TO TRUE                        
+     ELSE                                                 
+        PERFORM 3000-LECTURA-VSAM THRU 3000-F-LECTURA-VSAM
+     END-IF.                                              
+                                                          
+     EXEC SQL                                             
+        OPEN CURSOR1                                      
+     END-EXEC.                                            
+                                                          
+     IF SQLCODE NOT EQUAL ZEROS                           
+        MOVE SQLCODE   TO WS-SQLCODE                      
+        DISPLAY '* ERROR OPEN CURSOR 1 = ' WS-SQLCODE     
+        SET WS-FIN-LECTURA TO TRUE                        
+     ELSE                                                 
+        PERFORM 4000-LECTURA-SQL THRU 4000-F-LECTURA-SQL  
+     END-IF.                                              
+                                                          
+     .                                                    
+ 1000-F-INICIO.                                           
+     EXIT.                                                
+ **************************************         
+ *  CUERPO PRINCIPAL DE PROCESOS      *         
+ **************************************         
+  2000-I-PROCESO.                               
+ *---------------*                              
+                                                
+      IF KEY-TABLA EQUAL KEY-NOVED              
+         ADD 1 TO CN-TOT-ENCONTRADOS            
+         ADD WS-SALDO TO DB-CU-SALDO            
+                                                
+         EXEC SQL                               
+            SELECT NOMAPE                       
+            INTO :DB-CL-NOMAPE                  
+            FROM ITPARUT.TBCURCLI               
+            WHERE NROCLI = :DB-CU-NROCLI        
+         END-EXEC                               
+                                                
+         EVALUATE TRUE                          
+            WHEN SQLCODE EQUAL ZEROS            
+               PERFORM 2100-NOV-ENCONTRADA THRU 
+                          2100-FIN-NOV-ENCONTRADA.
+            WHEN SQLCODE EQUAL +100                            
+               MOVE WS-NROCLI TO IMP-NROCLI                    
+               DISPLAY CLIENTE-NO-ENCONTRADO                   
+            WHEN OTHER                                         
+               MOVE SQLCODE TO WS-SQLCODE                      
+               DISPLAY 'ERROR EN CONSULTA SQL: ' WS-SQLCODE    
+               SET WS-FIN-LECTURA TO TRUE                      
+         END-EVALUATE                                          
+                                                               
+            PERFORM 3000-LECTURA-VSAM THRU 3000-F-LECTURA-VSAM 
+                                                               
+            PERFORM 4000-LECTURA-SQL  THRU 4000-F-LECTURA-SQL  
+      ELSE                                                     
+         IF KEY-TABLA > KEY-NOVED                              
+           ADD 1 TO CN-TOT-NOENC                              
+           DISPLAY 'NOVEDAD NO ENCONTRADA: '                  
+                              WS-TIPCUEN '-' WS-NROCUEN       
+           DISPLAY WS-SEPARADOR                               
+           PERFORM 3000-LECTURA-VSAM THRU 3000-F-LECTURA-VSAM 
+        ELSE                                                  
+           DISPLAY 'CUENTA SIN NOVEDAD: '                     
+                               CLAVE-TIPCUEN '-' CLAVE-NROCUEN
+           DISPLAY WS-SEPARADOR                               
+           PERFORM 4000-LECTURA-SQL  THRU 4000-F-LECTURA-SQL  
+        END-IF                                                
+     END-IF                                                   
+                                                              
+     IF WS-FIN-SQL AND WS-FIN-NOV                             
+        SET  WS-FIN-LECTURA TO TRUE                           
+     END-IF.                                                  
+                                                              
+ 2000-F-PROCESO.                                              
+     EXIT.                                                    
+                                                              
+ 2100-NOV-ENCONTRADA.                                         
+      MOVE DB-CU-SALDO TO IMPR-SALDO                          
+      DISPLAY 'CUENTA ' DB-CU-TIPCUEN '-' DB-CU-NROCUEN       
+      DISPLAY 'CLIENTE NRO ' DB-CU-NROCLI ' / '           
+                         DB-CL-NOMAPE                     
+      DISPLAY 'SALDO ACTUALIZADO = ' IMPR-SALDO           
+      DISPLAY WS-SEPARADOR                                
+ 2100-FIN-NOV-ENCONTRADA. EXIT.                           
+                                                          
+                                                          
+                                                          
+ 3000-LECTURA-VSAM.                                       
+                                                          
+     READ VSAM INTO WS-REG-CTA                            
+                                                          
+     EVALUATE FS-VSAM                                     
+        WHEN '00'                                         
+            ADD 1 TO CN-TOT-LEIDOS                        
+            MOVE WS-TIPCUEN TO CLAVE-TIPCUEN2             
+            MOVE WS-NROCUEN TO CLAVE-NROCUEN2             
+        WHEN '10'                                         
+            SET WS-FIN-NOV     TO TRUE                    
+            MOVE 9999999 TO KEY-NOVED                     
+        WHEN OTHER                                        
+            DISPLAY '* ERROR EN LECTURA VSAM = ' FS-VSAM  
+            MOVE 9999 TO RETURN-CODE                      
+            SET WS-FIN-LECTURA TO TRUE          
+     END-EVALUATE                               
+                                                
+     .                                          
+ 3000-F-LECTURA-VSAM.                           
+     EXIT.                                      
+                                                
+ 4000-LECTURA-SQL.                              
+                                                
+     EXEC SQL                                   
+        FETCH CURSOR1                           
+            INTO :DB-CU-TIPCUEN,                
+                 :DB-CU-NROCUEN,                
+                 :DB-CU-SUCUEN,                 
+                 :DB-CU-NROCLI,                 
+                 :DB-CU-SALDO                   
+     END-EXEC                                   
+                                                
+     EVALUATE TRUE                              
+        WHEN SQLCODE EQUAL ZEROS                
+           MOVE DB-CU-TIPCUEN TO CLAVE-TIPCUEN  
+           MOVE DB-CU-NROCUEN TO CLAVE-NROCUEN  
+        WHEN SQLCODE EQUAL +100                 
+           MOVE 9999999 TO KEY-TABLA                    
+           SET WS-FIN-SQL     TO TRUE                   
+        WHEN OTHER                                      
+           MOVE SQLCODE TO WS-SQLCODE                   
+           DISPLAY 'ERROR FETCH CURSOR: ' WS-SQLCODE    
+           SET WS-FIN-LECTURA TO TRUE                   
+     END-EVALUATE.        
+ 4000-F-LECTURA-SQL.                                    
+     EXIT.                                              
+                                                        
+ 9999-I-FINAL.                                          
+*-------------*                                         
+                                                        
+     EXEC SQL                                           
+        CLOSE CURSOR1                                   
+     END-EXEC.                                          
+                                                        
+     IF SQLCODE NOT EQUAL ZEROS                         
+        MOVE SQLCODE TO WS-SQLCODE                      
+        DISPLAY '* ERROR CLOSE CURSOR     = ' WS-SQLCODE
+        MOVE 9999 TO RETURN-CODE                        
+     END-IF.                                           
+                                                       
+     CLOSE VSAM                                        
+                                                       
+     IF FS-VSAM NOT EQUAL '00'                         
+        DISPLAY '* ERROR EN CLOSE SALIDA = ' FS-VSAM   
+        MOVE 9999 TO RETURN-CODE                       
+     END-IF                                            
+                                                       
+     DISPLAY WS-SEPARADOR                              
+     MOVE CN-TOT-LEIDOS TO IMPR-TOTALES                
+     DISPLAY 'LEIDOS ARCHIVO VSAM      = ' IMPR-TOTALES
+     MOVE CN-TOT-ENCONTRADOS TO IMPR-TOTALES           
+     DISPLAY 'NOVEDADES ENCONTRADAS    = ' IMPR-TOTALES
+     MOVE CN-TOT-NOENC TO IMPR-TOTALES                 
+     DISPLAY 'NOVEDADES NO ENCONTRADAS = ' IMPR-TOTALES.
+ 9999-F-FINAL.                                         
+     EXIT.                                             
+
+**************************** Bottom of Data ****************************
