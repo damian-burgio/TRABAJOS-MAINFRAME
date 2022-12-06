@@ -16,7 +16,7 @@ dburg @ LAPTOP-1Q579QTS 2022-12-06 06:06:57
  000010           05 WS-OPER2-E     PIC 9(04).                                  
  000011                                                                         
  000012        01 WS-SALIDA.                                                    
- 000013           05 WS-TEXTO       PIC X(08).                                  
+ 000013           05 WS-TEXTO       PIC X(11).                                  
  000014           05 WS-MENSAJE-S   PIC X(70).                                  
  000015                                                                         
  000016        01 WS-RESULTADO      PIC 9(04).                                  
@@ -40,14 +40,14 @@ dburg @ LAPTOP-1Q579QTS 2022-12-06 06:06:57
  000034                                                                         
  000035        200-PROCESO.                                                     
  000036       *REALIZAMOS EL CALCULO                                            
- 000037            COMPUTE WS-RESULTADO = WS-OPE1-E + WS-OPE2-E.                
+ 000037            COMPUTE WS-RESULTADO = WS-OPER1-E + WS-OPER2-E.                
  000038                                                                         
  000039       *MOVEMOS LA ENTRADA A LA SALIDA.                                  
  000040            MOVE WS-RESULTADO  TO WS-MENSAJE-S.                          
  000041            MOVE 'RESULTADO: ' TO WS-TEXTO.                              
  000042                                                                         
  000043                                                                         
- 000044       *ENVIAMOS LA VARIABLA AL CICS                                     
+ 000044       *ENVIAMOS LA VARIABLE AL CICS                                     
  000045            EXEC CICS SEND                                               
  000046                 FROM  (WS-SALIDA)                                       
  000047                 LENGTH(LENGTH OF WS-SALIDA)                             
