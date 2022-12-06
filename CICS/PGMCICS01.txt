@@ -40,13 +40,6 @@ dburg @ LAPTOP-1Q579QTS 2022-12-06 06:06:57
  000034                                                                         
  000035        200-PROCESO.                                                     
  000036       *REALIZAMOS EL CALCULO                                            
- Command ===>                                                  Scroll ===> CSR  
-  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
-  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
-================================================================================
-   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
- -------------------------------------------------------------------------------
- EDIT       ALU0023.CURSOS.FUENTE(PGMPRU23) - 01.12         Columns 00001 00072 
  000037            COMPUTE WS-RESULTADO = WS-OPE1-E + WS-OPE2-E.                
  000038                                                                         
  000039       *MOVEMOS LA ENTRADA A LA SALIDA.                                  
@@ -69,65 +62,4 @@ dburg @ LAPTOP-1Q579QTS 2022-12-06 06:06:57
  000056                                                                         
  000057                                                                         
  ****** **************************** Bottom of Data ****************************
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
- Command ===>                                                  Scroll ===> CSR  
-  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
-  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
-================================================================================
-   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
- -------------------------------------------------------------------------------
- EDIT       ALU0023.CURSOS.FUENTE(PGMPRU23) - 01.12         Columns 00001 00072 
- ****** **************************** Bottom of Data ****************************
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
- Command ===>                                                  Scroll ===> CSR  
-  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
-  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+  
