@@ -1,0 +1,133 @@
+dburg @ LAPTOP-1Q579QTS 2022-12-06 06:06:57
+
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ EDIT       ALU0023.CURSOS.FUENTE(PGMPRU23) - 01.12       Member PGMPRU23 saved 
+ ****** ***************************** Top of Data ******************************
+ 000001        IDENTIFICATION DIVISION.                                         
+ 000002        PROGRAM-ID. PGMPRU23.                                            
+ 000003        DATA DIVISION.                                                   
+ 000004        FILE SECTION.                                                    
+ 000005        WORKING-STORAGE SECTION.                                         
+ 000006        01 WS-ENTRADA.                                                   
+ 000007           05 FILLER         PIC X(04).                                  
+ 000008           05 WS-OPER1-E     PIC 9(04).                                  
+ 000009           05 FILLER         PIC X.                                      
+ 000010           05 WS-OPER2-E     PIC 9(04).                                  
+ 000011                                                                         
+ 000012        01 WS-SALIDA.                                                    
+ 000013           05 WS-TEXTO       PIC X(08).                                  
+ 000014           05 WS-MENSAJE-S   PIC X(70).                                  
+ 000015                                                                         
+ 000016        01 WS-RESULTADO      PIC 9(04).                                  
+ 000017                                                                         
+ 000018        PROCEDURE DIVISION.                                              
+ 000019             PERFORM 100-INICIO.                                         
+ 000020             PERFORM 200-PROCESO.                                        
+ 000021             PERFORM 300-FIN.                                            
+ 000022                                                                         
+ 000023                                                                         
+ 000024        100-INICIO.                                                      
+ 000025       *INICIALIZAMOS LA VARIABLE DE LONGITUD DE ENT. Y SAL.             
+ 000026            INITIALIZE         WS-MENTRADA                               
+ 000027                               WS-SALIDA.                                
+ 000028                                                                         
+ 000029            EXEC CICS RECEIVE                                            
+ 000030                 INTO (WS-ENTRADA)                                       
+ 000031                 FROM  (WS-MENS)                                         
+ 000032                 LENGTH(LENGTH OF WS-ENTRADA)                            
+ 000033            END-EXEC.                                                    
+ 000034                                                                         
+ 000035        200-PROCESO.                                                     
+ 000036       *REALIZAMOS EL CALCULO                                            
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ EDIT       ALU0023.CURSOS.FUENTE(PGMPRU23) - 01.12         Columns 00001 00072 
+ 000037            COMPUTE WS-RESULTADO = WS-OPE1-E + WS-OPE2-E.                
+ 000038                                                                         
+ 000039       *MOVEMOS LA ENTRADA A LA SALIDA.                                  
+ 000040            MOVE WS-RESULTADO  TO WS-MENSAJE-S.                          
+ 000041            MOVE 'RESULTADO: ' TO WS-TEXTO.                              
+ 000042                                                                         
+ 000043                                                                         
+ 000044       *ENVIAMOS LA VARIABLA AL CICS                                     
+ 000045            EXEC CICS SEND                                               
+ 000046                 FROM  (WS-SALIDA)                                       
+ 000047                 LENGTH(LENGTH OF WS-SALIDA)                             
+ 000048                 ERASE                                                   
+ 000049            END-EXEC.                                                    
+ 000050                                                                         
+ 000051        300-FIN.                                                         
+ 000052       *DEVOLVEMOS EL CONTROL AL CICS.                                   
+ 000053            EXEC CICS RETURN END-EXEC.                                   
+ 000054                                                                         
+ 000055                                                                         
+ 000056                                                                         
+ 000057                                                                         
+ ****** **************************** Bottom of Data ****************************
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
+================================================================================
+   File  Edit  Edit_Settings  Menu  Utilities  Compilers  Test  Help            
+ -------------------------------------------------------------------------------
+ EDIT       ALU0023.CURSOS.FUENTE(PGMPRU23) - 01.12         Columns 00001 00072 
+ ****** **************************** Bottom of Data ****************************
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ Command ===>                                                  Scroll ===> CSR  
+  F1=Help      F2=Split     F3=Exit      F5=Rfind     F6=Rchange   F7=Up        
+  F8=Down      F9=Swap     F10=Left     F11=Right    F12=Cancel                 
