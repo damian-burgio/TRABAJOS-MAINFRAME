@@ -1,0 +1,23 @@
+      ******************************************************************
+      *       DEFINICION DE LA COMMAREA DE ERRORES                     *
+FB2204* LONG.DE ESTA COMMAREA: 29193 CHAR.                             *
+      ******************************************************************
+      *LOS CODIGOS DE ERROR PUEDEN SER 01,02,03 Y 04                    
+       01 WCE0002-DFHCOMMAREA.                                          
+          03 WCE0002-RETCODE                    PIC 99.                 
+DHP022    03 WCE0002-SQLCODE-FUNC               PIC 9(05).              
+DHP022    03 WCE0002-SQLCODE  REDEFINES  WCE0002-SQLCODE-FUNC           
+DHP022                                          PIC -ZZZ9.              
+          03 WCE0002-NOMRECURSO                 PIC X(16).              
+          03 WCE0002-NOMCOMPONENTE              PIC X(07).              
+          03 WCE0002-MENSERROR                  PIC X(60).              
+          03 WCE0002-CANTERRORES                PIC 999.                
+          03 WCE0002-ERRORES.                                           
+VG2004       05 WCE0002-TABLA-ERRORES  OCCURS 100 TIMES.                
+VG2004*      05 WCE0002-TABLA-ERRORES         OCCURS     1 TO 100 TIMES 
+VG2004*                DEPENDING ON WCE0002-CANTERRORES.                
+                07 WCE0002-CODERROR                  PIC 99999.         
+                07 WCE0002-LEYCORTA                  PIC X(40).        
+                07 WCE0002-LEYLARGA                  PIC X(240).       
+                07 WCE0002-CAMPOERR                  PIC 999.          
+                07 WCE0002-NROFILA                   PIC 999.          

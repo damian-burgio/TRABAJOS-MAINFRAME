@@ -1,0 +1,549 @@
+       IDENTIFICATION DIVISION.                                         
+       PROGRAM-ID.   CUO0090.                                           
+       AUTHOR. BURGIO DAMIAN.                                           
+       DATE-WRITTEN. 28/02/2023.                                        
+      *----------------------------------------------------------------*
+      * MODULO      : CONTRIBUYENTE UNICO                              *
+      * IDENTIF.    : CUBE 2490                                        *
+      * PROGRAMA    : CUO0090                                          *
+      * TRANSACCION : ----                                             *
+      * OBJETIVO    : DETALLE POR CODIGO DE CALLE.                     *
+      *================================================================*
+      *           L O G   D E   M O D I F I C A C I O N E S            *
+      *----------------------------------------------------------------*
+      * MARCA:                                                         *
+      * AUTOR:                                                         *
+      * FECHA:                                                         *
+      * DESCRIPCION:                                                   *
+      *----------------------------------------------------------------*
+      ******************************************************************
+                                                                        
+      **********************                                            
+       ENVIRONMENT DIVISION.                                            
+      **********************                                            
+       CONFIGURATION SECTION.                                           
+         SOURCE-COMPUTER.  IBM-370.                                     
+         OBJECT-COMPUTER.  IBM-370.                                     
+         SPECIAL-NAMES.     DECIMAL-POINT IS COMMA.                     
+       INPUT-OUTPUT SECTION.                                            
+       DATA DIVISION.                                                   
+      *------------------------------------------------                 
+       WORKING-STORAGE SECTION.                                         
+      *------------------------------------------------                 
+                                                                        
+      *  DEFINICION DE CONSTANTES.                                      
+      *  ----------------------------------------------                 
+       01 WS-CONSTANTES.                                                
+          03 CT-PROGRAMA                   PIC X(07) VALUE 'CUO0090'.   
+          03 WS-ERR-GET                    PIC X(37) VALUE              
+             'ERROR AL RECIBIR DATOS DEL CONTENEDOR'.                   
+          03 WS-ERR-PUT                    PIC X(36) VALUE              
+             'ERROR EN PUT CONTENEDOR CTCUO0090-O'.                     
+          03 WS-ERR-LINK                   PIC X(27) VALUE              
+             'ERROR AL LLAMAR EL PROGRAMA'.                             
+          03 CT-LONG-LISTA                 PIC 9(04) VALUE 5000.        
+                                                                        
+      *-----------------------------------------------------------------
+      *  DEFINICION DE VARIABLES.                                       
+      *-----------------------------------------------------------------
+       01 WS-VARIABLES.                                                 
+          03 WS-CANAL                      PIC  X(18).                  
+          03 WS-LENGTH-CABECERA            PIC S9(07) COMP.             
+          03 WS-LENGTH-REAL                PIC S9(07) COMP.             
+          03 WS-COM-LEN                    PIC S9(07) COMP VALUE +0.    
+          03 WS-I                          PIC  9(04).                  
+          03 WS-COD-CALLE                  PIC S9(10) COMP-3.           
+                                                                        
+       01 WS-FIN-CURSOR                   PIC   X(01).                  
+          88 WS-FIN-CURSOR-SI                         VALUE 'S'.        
+          88 WS-FIN-CURSOR-NO                         VALUE 'N'.        
+                                                                        
+      *---------------------------------------------------------------- 
+      *  AREA DE COMUNICACION DE ESTE PROGRAMA                          
+      *---------------------------------------------------------------- 
+                                                                        
+          COPY  WCU0090.                                                
+                                                                        
+      *---------------------------------------------------------------- 
+      *  AREA DE COMUNICACION CON RUTINA DE BUSQUEDA DE ERRORES         
+      *---------------------------------------------------------------- 
+                                                                        
+          COPY  WCE0016.                                                
+      *                                                                 
+      *   COPY DE ERRORES                                               
+      *                                                                 
+          COPY  WCE0002.                                                
+                                                                        
+      *************************                                         
+      *   INCLUDE DE TABLAS   *                                         
+      *************************                                         
+                                                                        
+           EXEC SQL                                                     
+                INCLUDE SQLCA                                           
+           END-EXEC.                                                    
+                                                                        
+           EXEC SQL                                                     
+                INCLUDE GIDV0068                                        
+           END-EXEC.                                                    
+                                                                        
+           EXEC SQL                                                     
+                INCLUDE GIDV1512                                        
+           END-EXEC.                                                    
+                                                                        
+                                                                        
+      * RECORRE GIT0068 Y RESCATA TODOS LOS REGISTROS DE LA MISMA.      
+           EXEC SQL                                                     
+                DECLARE CUR-CALLES CURSOR FOR                     
+                SELECT G0068IDCALLE    ,                          
+                       G0068IDLOCALIDAD,                          
+                       G0068PUERTADESDE,                          
+                       G0068PUERTAHASTA,                          
+                       G0068CODPOSTAL1 ,                          
+                       G0068CODPOSTAL2 ,                          
+                       G0068VEREDA     ,                          
+                       G0068IDCALLESIAC,                          
+                       G0068IDBARRIO                              
+                  FROM GIT0068                                    
+                 WHERE G0068IDCALLE = :WS-COD-CALLE               
+              ORDER BY G0068PUERTADESDE                           
+           END-EXEC.                                              
+                                                                  
+       PROCEDURE DIVISION.                                        
+      *-------------------                                        
+       0000-CUO0090.                                              
+      *-------------------                                        
+                                                            
+           PERFORM 1000-INICIO                              
+              THRU 1000-INICIO-FIN                          
+                                                            
+           PERFORM 2000-PROCESO                             
+              THRU 2000-PROCESO-FIN                         
+                                                            
+           PERFORM 3000-FINAL                               
+              THRU 3000-FINAL-FIN.                          
+                                                            
+      *------------                                         
+       1000-INICIO.                                         
+      *------------                                         
+                                                            
+           INITIALIZE  WCE0002-DFHCOMMAREA                  
+                       WCU0090-ENTRADA                      
+                       WCU0090-SALIDA                       
+                       WS-VARIABLES                         
+                                                            
+           PERFORM 1050-LEE-CONTENEDOR            
+              THRU 1050-LEE-CONTENEDOR-FIN        
+                                                  
+           PERFORM 1100-VALIDA-ENTRADA            
+              THRU 1100-VALIDA-ENTRADA-FIN.       
+                                                  
+      *----------------                           
+       1000-INICIO-FIN.                           
+      *----------------                           
+           EXIT.                                  
+                                                  
+      *--------------------                       
+       1050-LEE-CONTENEDOR.                       
+      *--------------------                       
+                                                  
+           EXEC CICS                              
+                ASSIGN CHANNEL(WS-CANAL)          
+           END-EXEC                               
+                                                  
+           EXEC CICS                                             
+                 GET CONTAINER(WCU0090-CONTAINER-I)              
+                       CHANNEL(WS-CANAL)                         
+                          INTO(WCU0090-ENTRADA)                  
+                       FLENGTH(LENGTH OF WCU0090-ENTRADA)        
+                      NOHANDLE                                   
+           END-EXEC                                              
+                                                                 
+           IF EIBRESP NOT = DFHRESP (NORMAL)                     
+              MOVE 1                    TO WCE0002-RETCODE       
+              MOVE ZEROES               TO LK-RCODE-SVR0016      
+              MOVE EIBRESP              TO WCE0002-SQLCODE-FUNC  
+              MOVE WCU0090-CONTAINER-I  TO WCE0002-NOMRECURSO    
+              MOVE WS-ERR-GET           TO WCE0002-MENSERROR     
+                                                                 
+              PERFORM 6000-LINK-MSG-ERR                          
+                 THRU 6000-LINK-MSG-ERR-FIN                      
+                                                                 
+           END-IF                                                
+                                                      
+           EXEC CICS                                  
+                DELETE CONTAINER(WCU0090-CONTAINER-I) 
+                         CHANNEL(WS-CANAL)            
+                        NOHANDLE                      
+           END-EXEC                                   
+                                                      
+           IF EIBRESP NOT = DFHRESP (NORMAL)          
+              CONTINUE                                
+                                                      
+           END-IF.                                    
+                                                      
+      *------------------------                       
+       1050-LEE-CONTENEDOR-FIN.                       
+      *------------------------                       
+           EXIT.                                      
+                                                      
+      *--------------------                           
+       1100-VALIDA-ENTRADA.                           
+      *--------------------                                        
+                                                                   
+           IF WCU0090-CALLE-I = ZEROES                             
+              MOVE 2                    TO WCE0002-RETCODE         
+              MOVE 248                  TO LK-RCODE-SVR0016        
+              MOVE 248                  TO WCE0002-SQLCODE-FUNC    
+              MOVE 'WCU0090-CALLE-I'    TO WCE0002-NOMRECURSO      
+                                                                   
+              PERFORM 6000-LINK-MSG-ERR                            
+                 THRU 6000-LINK-MSG-ERR-FIN                        
+                                                                   
+           ELSE                                                    
+              MOVE WCU0090-CALLE-I      TO WS-COD-CALLE            
+                                                                   
+           END-IF.                                                 
+                                                                   
+      *------------------------                                    
+       1100-VALIDA-ENTRADA-FIN.                                    
+      *------------------------                                    
+           EXIT.                                      
+                                                      
+      *-------------                                  
+       2000-PROCESO.                                  
+      *-------------                                  
+                                                      
+           PERFORM 2100-ABRIR-CURSOR                  
+              THRU 2100-ABRIR-CURSOR-FIN              
+                                                      
+           PERFORM 2200-LEER-CURSOR                   
+              THRU 2200-LEER-CURSOR-FIN               
+                                                      
+           PERFORM 2300-PROCESAR-CURSOR               
+              THRU 2300-PROCESAR-CURSOR-FIN           
+             UNTIL WS-FIN-CURSOR-SI                   
+                                                      
+           PERFORM 2400-CERRAR-CURSOR                 
+              THRU 2400-CERRAR-CURSOR-FIN.            
+                                                      
+      *-----------------                                          
+       2000-PROCESO-FIN.                                          
+      *-----------------                                          
+           EXIT.                                                  
+                                                                  
+      *------------------                                         
+       2100-ABRIR-CURSOR.                                         
+      *------------------                                         
+                                                                  
+           SET WS-FIN-CURSOR-NO          TO TRUE                  
+           MOVE ZEROES                   TO WS-I                  
+                                                                  
+           EXEC SQL                                               
+                OPEN CUR-CALLES                                   
+           END-EXEC                                               
+                                                                  
+                                                                  
+           IF SQLCODE NOT = 0                                     
+              MOVE 1                     TO WCE0002-RETCODE       
+              MOVE SQLCODE               TO WCE0002-SQLCODE-FUNC        
+              MOVE 'OCUR-CALLES'         TO WCE0002-NOMRECURSO          
+              MOVE 'ERROR AL ABRIR CURSOR'                              
+                                         TO WCE0002-MENSERROR           
+              MOVE CT-PROGRAMA           TO WCE0002-NOMCOMPONENTE       
+              MOVE ZEROES                TO WCE0002-CANTERRORES         
+                                                                        
+              PERFORM 8000-TERMINO-ANORMAL                              
+                 THRU 8000-TERMINO-ANORMAL-FIN                          
+                                                                        
+           END-IF.                                                      
+                                                                        
+      *----------------------                                           
+       2100-ABRIR-CURSOR-FIN.                                           
+      *----------------------                                           
+           EXIT.                                                        
+                                                                        
+      *-----------------                                                
+       2200-LEER-CURSOR.                                                
+      *-----------------                          
+                                                  
+           EXEC SQL                               
+                FETCH  CUR-CALLES                 
+                 INTO :G0068IDCALLE    ,          
+                      :G0068IDLOCALIDAD,          
+                      :G0068PUERTADESDE,          
+                      :G0068PUERTAHASTA,          
+                      :G0068CODPOSTAL1 ,          
+                      :G0068CODPOSTAL2 ,          
+                      :G0068VEREDA     ,          
+                      :G0068IDCALLESIAC,          
+                      :G0068IDBARRIO              
+           END-EXEC                               
+                                                  
+           EVALUATE SQLCODE                       
+               WHEN 0                             
+                    CONTINUE                      
+                                                  
+               WHEN 100                                                 
+                    SET WS-FIN-CURSOR-SI   TO TRUE                      
+                                                                        
+               WHEN OTHER                                               
+                    DISPLAY '***************************************'   
+                    DISPLAY '* PROGRAMA CUO0090'                        
+                    DISPLAY '* SQLERRMC: ' SQLERRMC                     
+                    DISPLAY '***************************************'   
+                    MOVE 1                 TO WCE0002-RETCODE           
+                    MOVE SQLCODE           TO WCE0002-SQLCODE-FUNC      
+                    MOVE 'FCUR-CALLES'     TO WCE0002-NOMRECURSO        
+                    MOVE 'ERROR AL LEER CURSOR'                         
+                                           TO WCE0002-MENSERROR         
+                    MOVE CT-PROGRAMA       TO WCE0002-NOMCOMPONENTE     
+                    MOVE ZEROES            TO WCE0002-CANTERRORES       
+                                                                        
+                    PERFORM 8000-TERMINO-ANORMAL                        
+                       THRU 8000-TERMINO-ANORMAL-FIN                    
+           END-EVALUATE.                                                
+                                                                        
+      *---------------------                                            
+       2200-LEER-CURSOR-FIN.                                            
+      *---------------------                                            
+           EXIT.                                                        
+                                                                        
+      *---------------------                                            
+       2300-PROCESAR-CURSOR.                                            
+      *---------------------                                            
+                                                                        
+           ADD 1                      TO WS-I                           
+                                                                        
+           MOVE G0068PUERTADESDE      TO WCU0090-ALT-DES-O (WS-I)       
+           MOVE G0068PUERTAHASTA      TO WCU0090-ALT-HAS-O (WS-I)       
+           MOVE G0068CODPOSTAL1       TO WCU0090-COD-POS1-O(WS-I)       
+           MOVE G0068CODPOSTAL2       TO WCU0090-COD-POS2-O(WS-I)       
+           MOVE G0068VEREDA           TO WCU0090-VEREDA-O  (WS-I)       
+                                                                        
+           IF G0068IDBARRIO > ZEROES                                
+              PERFORM 2350-BUSCA-GIT1512                            
+                 THRU 2350-BUSCA-GIT1512-FIN                        
+                                                                    
+           ELSE                                                     
+              MOVE SPACES             TO WCU0090-BARRIO-O(WS-I)     
+                                                                    
+           END-IF                                                   
+                                                                    
+           PERFORM 2200-LEER-CURSOR                                 
+              THRU 2200-LEER-CURSOR-FIN.                            
+                                                                    
+      *-------------------------                                    
+       2300-PROCESAR-CURSOR-FIN.                                    
+      *-------------------------                                    
+           EXIT.                                                    
+                                                                    
+      *-------------------                                          
+       2400-CERRAR-CURSOR.                                          
+      *-------------------                                            
+                                                                      
+           EXEC SQL                                                   
+                CLOSE CUR-CALLES                                      
+           END-EXEC                                                   
+                                                                      
+           EVALUATE SQLCODE                                           
+               WHEN ZEROS                                             
+                    CONTINUE                                          
+                                                                      
+               WHEN OTHER                                             
+                    DISPLAY '***************************************' 
+                    DISPLAY '* PROGRAMA CUO0090'                      
+                    DISPLAY '* SQLERRMC: ' SQLERRMC                   
+                    DISPLAY '***************************************' 
+                    MOVE 1               TO WCE0002-RETCODE           
+                    MOVE SQLCODE         TO WCE0002-SQLCODE-FUNC      
+                    MOVE 'CCUR-CALLES'   TO WCE0002-NOMRECURSO        
+                    MOVE 'ERROR AL CERRAR CURSOR'                     
+                                         TO WCE0002-MENSERROR       
+                    MOVE CT-PROGRAMA     TO WCE0002-NOMCOMPONENTE   
+                    MOVE ZEROES          TO WCE0002-CANTERRORES     
+                                                                    
+                    PERFORM 8000-TERMINO-ANORMAL                    
+                       THRU 8000-TERMINO-ANORMAL-FIN                
+                                                                    
+           END-EVALUATE.                                            
+                                                                    
+      *-----------------------                                      
+       2400-CERRAR-CURSOR-FIN.                                      
+      *-----------------------                                      
+           EXIT.                                                    
+                                                                    
+      *-------------------                                          
+       2350-BUSCA-GIT1512.                                          
+      *-------------------                                          
+                                                                    
+           MOVE G0068IDBARRIO      TO G1512IDBARRIO                 
+                                                                       
+           EXEC SQL                                                    
+                SELECT  G1512NOMBARRIO                                 
+                  INTO :G1512NOMBARRIO                                 
+                  FROM  GIT1512                                        
+                 WHERE  G1512IDBARRIO = :G1512IDBARRIO                 
+           END-EXEC                                                    
+                                                                       
+           EVALUATE SQLCODE                                            
+               WHEN 0                                                  
+                   MOVE G1512NOMBARRIO      TO WCU0090-BARRIO-O(WS-I)  
+                                                                       
+               WHEN 100                                                
+                   MOVE SPACES              TO WCU0090-BARRIO-O(WS-I)  
+                                                                       
+              WHEN OTHER                                               
+                    DISPLAY '***************************************'  
+                    DISPLAY '* PROGRAMA CUO0090'                       
+                    DISPLAY '* SQLERRMC: ' SQLERRMC                    
+                    DISPLAY '***************************************' 
+                    MOVE 1                 TO WCE0002-RETCODE         
+                    MOVE SQLCODE           TO WCE0002-SQLCODE-FUNC    
+                    MOVE '2350-BUSCA-GIT1512'                         
+                                           TO WCE0002-NOMRECURSO      
+                    MOVE 'ERROR EN LECTURA GIT1512'                   
+                                           TO WCE0002-MENSERROR       
+                    MOVE CT-PROGRAMA       TO WCE0002-NOMCOMPONENTE   
+                    MOVE ZEROES            TO WCE0002-CANTERRORES     
+                                                                      
+                    PERFORM 8000-TERMINO-ANORMAL                      
+                       THRU 8000-TERMINO-ANORMAL-FIN                  
+                                                                      
+           END-EVALUATE.                                              
+                                                                      
+      *-----------------------                                        
+       2350-BUSCA-GIT1512-FIN.                                        
+      *-----------------------                                        
+           EXIT.                                                      
+                                                                       
+      *-----------                                                     
+       3000-FINAL.                                                     
+      *-----------                                                     
+                                                                       
+           MOVE ZEROES                    TO WCU0090-COD-RET-O         
+           MOVE WS-I                      TO WCU0090-CAN-REG-O         
+                                                                       
+           COMPUTE WS-LENGTH-CABECERA =  LENGTH OF WCU0090-SALIDA  -   
+                                        (LENGTH OF WCU0090-LISTA-O *   
+                                                   CT-LONG-LISTA )     
+           COMPUTE WS-LENGTH-REAL     =  WS-LENGTH-CABECERA        +   
+                                        (LENGTH OF WCU0090-LISTA-O *   
+                                                   WCU0090-CAN-REG-O ) 
+                                                                       
+           EXEC CICS                                                   
+                 PUT CONTAINER(WCU0090-CONTAINER-O)                    
+                       CHANNEL(WS-CANAL)                               
+                          FROM(WCU0090-SALIDA)                         
+                       FLENGTH(WS-LENGTH-REAL)                        
+                     NOHANDLE                                         
+           END-EXEC.                                                  
+                                                                      
+           IF EIBRESP NOT = DFHRESP (NORMAL)                          
+              MOVE 1                      TO WCE0002-RETCODE          
+              MOVE EIBRESP                TO WCE0002-SQLCODE          
+              MOVE 'CTCUO0090-O'          TO WCE0002-NOMRECURSO       
+              MOVE 'CUO0090'              TO WCE0002-NOMCOMPONENTE    
+              MOVE WS-ERR-PUT             TO WCE0002-MENSERROR        
+              MOVE ZEROES                 TO WCE0002-CANTERRORES      
+                                                                      
+              PERFORM 8000-TERMINO-ANORMAL                            
+                 THRU 8000-TERMINO-ANORMAL-FIN                        
+                                                                      
+           END-IF                                                     
+                                                                      
+           PERFORM 9999-SALIDA                                        
+              THRU 9999-SALIDA-FIN.                                   
+                                                                    
+      *---------------                                              
+       3000-FINAL-FIN.                                              
+      *---------------                                              
+           EXIT.                                                    
+                                                                    
+      *------------------                                           
+       6000-LINK-MSG-ERR.                                           
+      *------------------                                           
+                                                                    
+           MOVE ZEROES                 TO WCE0002-CANTERRORES       
+                                                                    
+           IF LK-RCODE-SVR0016 = ZEROES                             
+              MOVE CT-PROGRAMA         TO WCE0002-NOMCOMPONENTE     
+                                                                    
+              PERFORM 8000-TERMINO-ANORMAL                          
+                 THRU 8000-TERMINO-ANORMAL-FIN                      
+                                                                    
+           ELSE                                                     
+              MOVE LENGTH OF LK-COMMAREA  TO WS-COM-LEN             
+                                                                    
+              EXEC CICS                                             
+                   LINK PROGRAM('SVP0016')                          
+                        COMMAREA(LK-COMMAREA)                       
+                          LENGTH(WS-COM-LEN)                        
+                        NOHANDLE                                    
+              END-EXEC                                              
+                                                                    
+              IF EIBRESP NOT = DFHRESP(NORMAL)                      
+                 MOVE 1                   TO WCE0002-RETCODE        
+                 MOVE EIBRESP             TO WCE0002-SQLCODE        
+                 MOVE 'LSVP0016'          TO WCE0002-NOMRECURSO     
+                 MOVE CT-PROGRAMA         TO WCE0002-NOMCOMPONENTE  
+                 MOVE WS-ERR-LINK         TO WCE0002-MENSERROR      
+                 MOVE ZEROES              TO WCE0002-CANTERRORES    
+                                                                    
+              ELSE                                                  
+                 MOVE CT-PROGRAMA         TO WCE0002-NOMCOMPONENTE  
+                 MOVE LK-CORTA-SVR0016    TO WCE0002-MENSERROR     
+                                                                   
+              END-IF                                               
+                                                                   
+              PERFORM 8000-TERMINO-ANORMAL                         
+                 THRU 8000-TERMINO-ANORMAL-FIN                     
+                                                                   
+           END-IF.                                                 
+                                                                   
+      *----------------------                                      
+       6000-LINK-MSG-ERR-FIN.                                      
+      *----------------------                                      
+           EXIT.                                                   
+                                                                   
+      *--------------------                                        
+       8000-TERMINO-ANORMAL.                                       
+      *---------------------                                       
+                                                                   
+           EXEC CICS                                               
+                DELETE CONTAINER(WCU0090-CONTAINER-O)              
+                         CHANNEL(WS-CANAL)                         
+                        NOHANDLE                                   
+           END-EXEC                                                
+                                                                   
+           IF EIBRESP NOT = DFHRESP (NORMAL)                       
+              CONTINUE                                             
+                                                                   
+           END-IF                                                  
+                                                                   
+           EXEC CICS PUT CONTAINER(WCU0090-CONTAINER-E)            
+                     CHANNEL(WS-CANAL)                             
+                     FROM(WCE0002-DFHCOMMAREA)                     
+                     FLENGTH(LENGTH OF WCE0002-DFHCOMMAREA)        
+                     NOHANDLE                                      
+           END-EXEC                                                
+                                                                   
+           PERFORM 9999-SALIDA                                     
+              THRU 9999-SALIDA-FIN.                                
+                                             
+      *-------------------------             
+       8000-TERMINO-ANORMAL-FIN.             
+      *-------------------------             
+           EXIT.                             
+                                             
+      *------------                          
+       9999-SALIDA.                          
+      *------------                          
+                                             
+           EXEC CICS                         
+               RETURN                        
+           END-EXEC.                         
+                                             
+      *----------------                      
+       9999-SALIDA-FIN.                      
+      *----------------                      
+           EXIT.                             

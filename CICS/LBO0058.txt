@@ -1,0 +1,169 @@
+       IDENTIFICATION DIVISION.                                     
+       PROGRAM-ID.    LBO0058.                                      
+       AUTHOR.        BURGIO DAMIAN.                                
+      ***********************************************************   
+      * TRANSACCION: LB58                                           
+      * PRUEBA DE PROGRAMAS CICS                                    
+      ************************************************************  
+       ENVIRONMENT DIVISION.                                        
+      **********************                                        
+       CONFIGURATION SECTION.                                       
+         SOURCE-COMPUTER.  IBM-370.                                 
+         OBJECT-COMPUTER.  IBM-370.                                 
+         SPECIAL-NAMES.    DECIMAL-POINT IS COMMA.                  
+       INPUT-OUTPUT SECTION.                                        
+       DATA DIVISION.                                               
+       WORKING-STORAGE SECTION.                                     
+      *************************                                     
+      *                                                             
+      *   VARIABLES                                                 
+       01  WS-COM-LEN               PIC S9(07)   COMP  VALUE +0.  
+       01  WS-LENGTH-CABECERA       PIC S9(07)   COMP.            
+       01  WS-LENGTH-REAL           PIC S9(07)   COMP.            
+       01  WS-ORDEN-CAMPO           PIC  9(03)   VALUE ZEROES.    
+       01  WS-NRO-FILA              PIC  9(03)   VALUE ZEROES.    
+       01  WS-CANT-ERR              PIC  9(03)   VALUE ZEROES.    
+       01  WS-PROGRAMA              PIC   X(7)   VALUE 'OJO0025'. 
+       01  WS-EIBRESP               PIC S9999.                    
+       01  WS-EIBRESP2              PIC  S9(4)   COMP.            
+       01  WS-IND                   PIC  9(05)   VALUE ZEROS.     
+      *                                                           
+       01  NOMBRE-CANAL             PIC  X(16)   VALUE 'CNCANAL'. 
+                                                                  
+      *01  COM-LEN                  PIC  S9(4)   COMP.            
+      *01  WS-FECHA                 PIC  X(10).                   
+      *01  WS-FEC-INI               PIC  X(10).                   
+      *01  IND-CASOS                PIC  999.                     
+      *01  WS-DIAS                  PIC  999  VALUE 60.           
+      *01  IND                      PIC  9999.                    
+      *01  I                        PIC  9999.                        
+      *01  WS-CANT-REG              PIC  9(3).                        
+      *01  WI                       PIC  9999.                        
+      *01  WS-IND                   PIC  9999.                        
+      *01  WS-INDI                  PIC  9999.                        
+      *77  WS-EIBRESP               PIC S9999.                        
+      *01  WS-NULL                  PIC  X(64) VALUE ALL ' '.         
+      *                                                               
+                                                                      
+      *  COMENTARIOS POR ERRORES.                                     
+      *  ------------------------                                     
+       01  WS-ERR-GET                  PIC  X(37)     VALUE           
+           'ERROR AL RECIBIR DATOS DEL CONTENEDOR'.                   
+       01  WS-ERR-PUT                  PIC  X(39)     VALUE           
+           'ERROR AL COLOCAR DATOS EN EL CONTENEDOR'.                 
+       01  WS-ERR-CUR-LIM              PIC  X(45)     VALUE           
+           'SUPERA EL LIMITE ESTABLECIDO PARA LA CONSULTA'.           
+       01  WS-ERR-LIMITE               PIC  X(43)     VALUE           
+           'SUPERADO EL LIMITE PARA CANTIDAD DE ERRORES'.             
+       01  WS-ERR-LINK                 PIC  X(27)     VALUE             
+           'ERROR AL LLAMAR EL PROGRAMA'.                               
+       01 WS-FECHA                     PIC  X(10).                      
+                                                                        
+      *   COMMAREA DE ENVIO DE DATOS DEL FRONT-END                      
+           COPY WOO0025.                                                
+      *                                                                 
+      ******************************************************************
+      *  DEFINICION DE CONTENEDORES Y AREA DE DATOS PGM                *
+      ******************************************************************
+      *                                                                 
+      *   COPY DE  COMMAREA DE ERRORES                                  
+      *                                                                 
+           COPY  WCE0002.                                               
+      *                                                                 
+                                                                        
+      *   EXEC SQL                                                      
+      *         INCLUDE SQLCA                                           
+      *   END-EXEC.                                                     
+      *----------------                                        
+       PROCEDURE DIVISION.                                     
+      *-------------------------                               
+       0-CUERPO-PRINCIPAL.                                     
+      *-------------------------                               
+           INITIALIZE WCE0002-DFHCOMMAREA                      
+                      WOO25-ENTRADA                            
+                                                               
+           DISPLAY 'ARRANCA LABORATORIO LBO0058'               
+           DISPLAY 'EJECUTA SERVICIO OJO0025'                  
+      *    EXEC SQL                                            
+      *         SET :WS-FECHA = CURRENT DATE                   
+      *    END-EXEC.                                           
+                                                               
+      *    EXEC SQL                                            
+      *         SET :WS-FEC-INI   = CURRENT DATE AAAAMMDD      
+      *    END-EXEC.                                           
+      *    DISPLAY ' * * * * * * * * *'                        
+      *    DISPLAY WS-FEC-INI                                  
+      *    EXEC SQL                                                   
+      *         SET :WS-FECHA = DATE(:WS-FEC-INI) + :WS-DIAS          
+      *    END-EXEC.                                                  
+      *    EXEC SQL                                                   
+      *         SET :WS-FECHA   = DATE((:WS-FEC-INI) +                
+      *                         1 MONTH )- 1 DAYS                     
+      *    END-EXEC                                                   
+      *    DISPLAY ' * * * * * * * * *'                               
+      *    DISPLAY WS-FEC-INI                                         
+      *    DISPLAY ' * * * * * * * * *'                               
+      *    DISPLAY WS-FECHA                                           
+      *    DISPLAY ' * * * * * * * * *'                               
+      *    DISPLAY WS-DIAS                                            
+      *    DISPLAY ' * * * * * * * * *'                               
+                                                                      
+           EXEC CICS                                                  
+                LINK PROGRAM('OJO0025')                               
+                           CHANNEL(NOMBRE-CANAL)                      
+                           NOHANDLE                                   
+           END-EXEC                                                   
+                                                                      
+           IF EIBRESP NOT = DFHRESP (NORMAL)                          
+              DISPLAY 'EIBRESP   ' EIBRESP                            
+           END-IF                                                     
+                                                                      
+           EXEC CICS GET CONTAINER(CONTAINER-OOJO25)                  
+                            CHANNEL(NOMBRE-CANAL)                     
+                            INTO(WOO25-SALIDA)                        
+                            FLENGTH(LENGTH OF WOO25-SALIDA)           
+                            NOHANDLE                                  
+           END-EXEC                                                   
+      *                                                               
+              DISPLAY 'EIBRESP2: ' EIBRESP2 ' : '                     
+                                                                      
+           EVALUATE EIBRESP2                                          
+              WHEN ZEROS                                              
+                   DISPLAY 'SALIDA NORMAL DEL PROGRAMA OJO0025'       
+                   DISPLAY ' WOO25-RETCODE-S  : ' WOO25-RETCODE-S     
+                   DISPLAY ' WOO25-CANT-REG-S : ' WOO25-CANT-REG-S      
+                                                                        
+                   PERFORM 5000-DESCARGA-TABLA    THRU                  
+                           5000-DESCARGA-TABLA-FIN                      
+                           VARYING WS-IND FROM 1 BY 1                   
+                               UNTIL   WS-IND > WOO25-CANT-REG-S        
+                                                                        
+              WHEN 10                                                   
+                                                                        
+                   DISPLAY 'SALIDA CON ERROR DEL PROGRAMA OJO0025'      
+                                                                        
+                   EXEC CICS GET CONTAINER(CONTAINER-EOJO26)            
+                                 CHANNEL(NOMBRE-CANAL)                  
+                                 INTO (WCE0002-DFHCOMMAREA)             
+                                 FLENGTH (LENGTH OF WCE0002-DFHCOMMAREA)
+                                 NOHANDLE                               
+                   END-EXEC                                             
+                                                                        
+              WHEN OTHER                                                
+                   DISPLAY 'OTHER - EIBRESP2 2:  ' EIBRESP2      
+           END-EVALUATE .                                        
+                                                                 
+      *                                                          
+           EXEC CICS RETURN END-EXEC.                            
+                                                                 
+      *--------------------------                                
+       5000-DESCARGA-TABLA.                                      
+      *--------------------------                                
+            DISPLAY 'WOO25-NRO-JUZGADO  :  '                     
+                               WOO25-NRO-JUZGADO  (WS-IND).      
+            DISPLAY 'WOO25-JUEZ-A-CARGO :  '                     
+                               WOO25-JUEZ-A-CARGO (WS-IND).      
+       5000-DESCARGA-TABLA-FIN.                                  
+           EXIT.                                                 
+                                                                 
+                                                                 

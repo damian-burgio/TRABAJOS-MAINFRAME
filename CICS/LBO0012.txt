@@ -1,0 +1,222 @@
+       IDENTIFICATION DIVISION.                                         
+       PROGRAM-ID.    LBO0012.                                          
+      ************************************************************      
+      * AUTOR: GASTON NEGRETE                                           
+      * TRANSACCION: LB12                                               
+      * PRUEBA DE PROGRAMAS CICS (PARA PROBAR PROGRAMA GJO0063).        
+      ************************************************************      
+       ENVIRONMENT DIVISION.                                            
+      **********************                                            
+       CONFIGURATION SECTION.                                           
+         SOURCE-COMPUTER.  IBM-370.                                     
+         OBJECT-COMPUTER.  IBM-370.                                     
+         SPECIAL-NAMES.    DECIMAL-POINT IS COMMA.                      
+       INPUT-OUTPUT SECTION.                                            
+       DATA DIVISION.                                                   
+       WORKING-STORAGE SECTION.                                         
+      *                                                                 
+       01  WS-TIMESTAMP.                                                
+           03 WK-TIMESTAMP        PIC X(26)       VALUE SPACES.         
+      *                                                                 
+       01  WS-EIBRESP             PIC 9(4)  VALUE ZEROS.                
+       01  WS-CANAL               PIC X(16) VALUE 'CNCANAL'.            
+       01  WS-CNT-CASOS           PIC 9(3)  VALUE ZEROS.                
+       01  WS-CNT-REGIS           PIC 9(3)  VALUE ZEROS.                
+       01  COM-LEN                PIC S9(4) COMP VALUE ZEROS.           
+       01  WS-I                   PIC 9(04) VALUE ZEROS.                
+                                                                        
+      *                                                                 
+      *---------------------------------------------------------------* 
+      * CONTENEDOR PARA RECEPCION/ENVIO DE DATOS AL FRONT-END         * 
+      *---------------------------------------------------------------* 
+           COPY WGJ0063.                                                
+      *                                                                 
+      ******************************************************************
+      *       DEFINICION DE LOS CONTENEDORES PGM GJO0043               *
+      ******************************************************************
+      *                                                                 
+      *01 WGJ043-CONTAINER-I    PIC X(16) VALUE 'CTGJO0043-I'.          
+      *01 WGJ043-CONTAINER-O    PIC X(16) VALUE 'CTGJO0043-O'.    
+      * ------ AREA DEL CONTENEDOR DE ERRORES  -------------      
+      *01 WGJ043-CONTAINER-E    PIC X(16) VALUE 'CTERRORES'.      
+      *                                                           
+          COPY  WCE0002.                                          
+      *                                                           
+                                                                  
+       PROCEDURE DIVISION.                                        
+      *-------------------*                                       
+       0-CUERPO-PRINCIPAL.                                        
+      *-------------------*                                       
+           INITIALIZE WGJ63-ENTRADA                               
+                      WGJ63-SALIDA                                
+                                                                  
+                                                                  
+           MOVE 1             TO WGJ63-CANT-REG-I                 
+           MOVE 49            TO WGJ63-IMPUESTO-I                 
+           MOVE '84'          TO WGJ63-IDENTIFICADOR-I            
+      *    MOVE 49            TO WGJ0050-COD-IMP-I                
+      *    MOVE 84            TO WGJ0050-IDENTIF-I                   
+      *    MOVE 180083859     TO WGJ0050-NUM-ADJ-I                   
+      *    MOVE '2023-10-31'  TO WGJ0050-FEC-ACTUALIZ-I              
+                                                                     
+           MOVE FUNCTION CURRENT-DATE TO WK-TIMESTAMP.               
+      *                                                              
+           DISPLAY 'LAB.12 ---- INICIO TRX LB12 ------------- *'     
+           DISPLAY 'LAB.12 TIMESTAMP: ' WK-TIMESTAMP.                
+      *                                                              
+      * MODIFICAR EN EL DISPLAY RUTINA A PROBAR                      
+           DISPLAY '--> LAB.12 CONTENEDOR DE ENTRADA <--'            
+           DISPLAY 'WGJ63-CANT-REG-I      : ' WGJ63-CANT-REG-I       
+           DISPLAY 'WGJ63-IMPUESTO-I      : ' WGJ63-IMPUESTO-I       
+           DISPLAY 'WGJ63-IDENTIFICADOR-I : ' WGJ63-IDENTIFICADOR-I  
+      *                                                              
+           DISPLAY 'LAB.12-LLAMA AL GJO0063'.                        
+      *                                                              
+           DISPLAY 'LAB.12 - AREA ENTRADA CONTENEDOR == '            
+                    WGJ63-ENTRADA.                                   
+      *                                                                
+           EXEC CICS PUT CONTAINER(WGJ63-CONTAINER-I)                  
+                         CHANNEL(WS-CANAL)                             
+                         FROM (WGJ63-ENTRADA)                          
+                         FLENGTH (LENGTH OF WGJ63-ENTRADA)             
+                         NOHANDLE                                      
+           END-EXEC.                                                   
+      *                                                                
+           DISPLAY 'LAB.12-POST PUT DEL CONT. DE ENTRADA: ' EIBRESP.   
+      *                                                                
+           IF EIBRESP NOT = DFHRESP (NORMAL)                           
+              MOVE 1                TO WCE0002-RETCODE                 
+              MOVE EIBRESP          TO WCE0002-SQLCODE                 
+              MOVE 'GJO0063'        TO WCE0002-NOMRECURSO              
+              MOVE 'LBO0012'        TO WCE0002-NOMCOMPONENTE           
+              MOVE 'ERROR EN PUT CONTENEDOR DE ENTRADA '               
+                                    TO WCE0002-MENSERROR               
+              MOVE 0                TO WCE0002-CANTERRORES             
+              PERFORM 8000-RETURN THRU                                 
+                      8000-FIN-RETURN                             
+           END-IF.                                                
+      *                                                           
+           EXEC CICS                                              
+                LINK PROGRAM('GJO0063')                           
+                     CHANNEL(WS-CANAL)                            
+                     NOHANDLE                                     
+           END-EXEC.                                              
+      *                                                           
+           DISPLAY 'LAB.12-VUELTA DEL GJO0063: ' EIBRESP.         
+           DISPLAY 'LAB.12-VUELTA DEL GJO0063: ' EIBRESP2.        
+      *                                                           
+           IF EIBRESP NOT = DFHRESP (NORMAL)                      
+              MOVE 1                    TO WCE0002-RETCODE        
+              MOVE EIBRESP              TO WCE0002-SQLCODE        
+              MOVE 'GJO0063'            TO WCE0002-NOMRECURSO     
+              MOVE 'LBO0012'            TO WCE0002-NOMCOMPONENTE  
+              MOVE 'ERROR EN LINK PROGRAMA GJO0063'               
+                                        TO WCE0002-MENSERROR      
+              MOVE 0                    TO WCE0002-CANTERRORES    
+              PERFORM 8000-RETURN THRU                            
+                      8000-FIN-RETURN                             
+           END-IF.                                                
+      *                                                           
+      * SE RECIBEN DATOS O ERRORES DE LA RUTINA GJO0063           
+      *                                                           
+           EXEC CICS GET CONTAINER(WGJ63-CONTAINER-O)             
+                         CHANNEL(WS-CANAL)                        
+                         INTO (WGJ63-SALIDA)                      
+                         FLENGTH (LENGTH OF WGJ63-SALIDA)         
+                         NOHANDLE                                 
+           END-EXEC.                                              
+      *                                                           
+           DISPLAY 'LAB.12N-DESPUES GET CONT. SALIDA: ' EIBRESP2. 
+      *                                                           
+           EVALUATE EIBRESP2                                      
+              WHEN ZEROS                                          
+                   CONTINUE                                       
+              WHEN 10                                                   
+                   EXEC CICS GET CONTAINER(WGJ63-CONTAINER-E)           
+                                 CHANNEL(WS-CANAL)                      
+                                 INTO(WCE0002-DFHCOMMAREA)              
+                                 FLENGTH(LENGTH OF WCE0002-DFHCOMMAREA) 
+                                 NOHANDLE                               
+                   END-EXEC                                             
+                   DISPLAY 'LAB.12 EIBRESP2 10 DEL GET LUEGO GJO0063: ' 
+                                         WCE0002-DFHCOMMAREA(1:100)     
+                   PERFORM 8000-RETURN THRU                             
+                           8000-FIN-RETURN                              
+              WHEN OTHER                                                
+                   DISPLAY 'LAB.12N-ERROR EN GET CONTENEDOR DE ERRORES W
+      -               'HEN OTHER: ' EIBRESP2                            
+                   PERFORM 8000-RETURN THRU                             
+                           8000-FIN-RETURN                              
+           END-EVALUATE.                                                
+      *                                                                 
+      *---------------------------------------------------------------* 
+      * SALIDA NORMAL                                                 * 
+      *               SALIDA NORMAL                                   * 
+      * DISPLAY CONTENEDOR DE SALIDA                                  * 
+      *---------------------------------------------------------------* 
+      *                                                                 
+           DISPLAY 'LAB.12N - CONTENEDOR DE SALIDA - NORMAL   ==>  '.   
+      *                                                                 
+           PERFORM 1000-DISPLAY-CONTENEDOR THRU                         
+                   1000-FIN-DISPLAY-CONTENEDOR.                         
+      *                                                                 
+           PERFORM 8000-RETURN THRU                                     
+                   8000-FIN-RETURN.                                     
+      *                                                                 
+      *------------------------*                                        
+       1000-DISPLAY-CONTENEDOR.                                         
+      *------------------------*                                        
+      *                                                                 
+           IF WGJ63-RETCODE-S EQUAL ZEROS                               
+              DISPLAY 'WGJ63-RETCODE-S       ' WGJ63-RETCODE-S          
+              PERFORM 1500-CANTITEM                              
+                 THRU 1500-FIN                                   
+           ELSE                                                  
+              DISPLAY 'LAB.12 - RET.CODE NO ZEROS '              
+                       WCE0002-DFHCOMMAREA(1:100)                
+           END-IF.                                               
+      *                                                          
+      *----------------------------*                             
+       1000-FIN-DISPLAY-CONTENEDOR.                              
+      *----------------------------*                             
+           EXIT.                                                 
+      *                                                          
+      *--------------*                                           
+       1500-CANTITEM.                                            
+      *--------------*                                           
+                                                                 
+           MOVE 1 TO WS-I                                        
+      *    IF WGJ043-NRO-ADJUDICA-I NOT EQUAL ZERO THEN          
+           DISPLAY WS-I                                          
+           DISPLAY 'WGJ63-CANT-REG-S    '     WGJ63-CANT-REG-S          
+           DISPLAY 'WGJ63-ID-HUM        '     WGJ63-ID-HUM(WS-I)        
+           DISPLAY 'WGJ63-NOMB-INS-HUM  '     WGJ63-NOMB-INS-HUM(WS-I)  
+           DISPLAY 'WGJ63-NUM-INS-HUM   '     WGJ63-NUM-INS-HUM(WS-I)   
+           DISPLAY 'WGJ0063-DATOS       '                               
+           DISPLAY 'WGJ63-NOMBCALLE-HUM   '   WGJ63-NOMCALLE-HUM(WS-I)  
+           DISPLAY 'WGJ63-NUMPUERTA-HUM   '   WGJ63-PUERTANRO-HUM(WS-I) 
+           DISPLAY 'WGJ63-ZONA-HUM        '   WGJ63-ZONA-HUM(WS-I)      
+           DISPLAY 'WGJ63-CANTIDAD-HUM    '   WGJ63-CANT-HUM(WS-I)      
+                                                                        
+      **   END-IF.                                                      
+                .                                                       
+      *---------*                                                       
+       1500-FIN.                                                        
+      *---------*                                                       
+           EXIT.                                                        
+      *                                                                 
+      *------------*                                                    
+       8000-RETURN.                                                     
+      *------------*                                                    
+           DISPLAY 'LAB.12N  --- FIN DE TRX LB12N ------------ *'.      
+      *                                                                 
+           EXEC CICS                                                    
+               RETURN                                                   
+           END-EXEC.                                                    
+      *                                                                 
+      *----------------*                                                
+       8000-FIN-RETURN.                                                 
+      *----------------*                                                
+           EXIT.                                                        
+      *                                                                 
+      * ------------------- FIN DEL LBO0012 ------------------------*   

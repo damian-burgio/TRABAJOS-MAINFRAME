@@ -1,0 +1,446 @@
+      *========================                                         
+       IDENTIFICATION DIVISION.                                         
+      *========================                                         
+       PROGRAM-ID.    OJO0025.                                          
+      ******************************************************************
+      * AUTOR : BURGIO DAMIAN.                                          
+      * FECHA : ----------                                              
+      * TITULO: OBTENER UNA LISTA DE JUZGADOS JUDICIALES                
+      *                                                                 
+      *================================================================*
+      *                 M O D I F I C A C I O N E S                    *
+      *================================================================*
+      * MARCA:                                                         *
+      * AUTOR:                                                         *
+      * FECHA:                                                         *
+      * DESCRIPCION:                                                   *
+      *================================================================*
+                                                                        
+                                                                        
+      *=====================                                            
+       ENVIRONMENT DIVISION.                                            
+      *=====================                                            
+       CONFIGURATION SECTION.                                           
+         SOURCE-COMPUTER.  IBM-370.                                     
+         OBJECT-COMPUTER.  IBM-370.                                     
+         SPECIAL-NAMES.    DECIMAL-POINT IS COMMA.                      
+       INPUT-OUTPUT SECTION.                                            
+                                                                        
+      *==============                                                   
+       DATA DIVISION.                                                   
+      *==============                                                   
+      *------------------------                                         
+       WORKING-STORAGE SECTION.                                         
+      *--------------------------                                       
+      *  VARIABLES DEL CONTENEDOR                                       
+      *--------------------------                                       
+       01 WS-CANAL                         PIC  X(18).                  
+       01 WS-COM-LEN                       PIC S9(07) COMP   VALUE +0.  
+       01 WS-LENGTH-CABECERA               PIC S9(07) COMP.             
+       01 WS-LENGTH-REAL                   PIC S9(07) COMP.             
+       01 WS-ORDEN-CAMPO                   PIC  9(03)   VALUE ZEROES.   
+       01 WS-NRO-FILA                      PIC  9(03)   VALUE ZEROES.   
+       01 WS-CANT-ERR                      PIC  9(03)   VALUE ZEROES.   
+       01 WS-PROGRAMA                      PIC  X(7)    VALUE 'OJO0025'.
+                                                                        
+      *----------------------                                           
+      *  VARIABLES DEL CURSOR                                           
+      *----------------------                                           
+       01 WS-EOF-CURSOR                    PIC X(1).                    
+          88 WS-EOF-CURSOR-SI                              VALUE 'S'.   
+          88 WS-EOF-CURSOR-NO                              VALUE 'N'.   
+       01 WS-CANT                          PIC 9(4)  VALUE ZEROES.      
+                                                                        
+      *-------------------------                                        
+      *  COMENTARIOS POR ERRORES                               
+      *-------------------------                               
+       01  WS-ERR-GET                  PIC  X(37)       VALUE  
+           'ERROR AL RECIBIR DATOS DEL CONTENEDOR'.            
+       01  WS-ERR-PUT                  PIC  X(39)       VALUE  
+           'ERROR AL COLOCAR DATOS EN EL CONTENEDOR'.          
+       01  WS-ERR-CUR-LIM              PIC  X(45)       VALUE  
+           'SUPERA EL LIMITE ESTABLECIDO PARA LA CONSULTA'.    
+       01  WS-ERR-LIMITE               PIC  X(43)       VALUE  
+           'SUPERADO EL LIMITE PARA CANTIDAD DE ERRORES'.      
+       01  WS-ERR-LINK                 PIC  X(27)       VALUE  
+           'ERROR AL LLAMAR EL PROGRAMA'.                      
+                                                               
+      *--------------------------------                        
+      *  ENVIO DE DATOS DESDE FRONT-END                        
+      *--------------------------------                        
+           COPY WOO0025.                                       
+                                                               
+                                                  
+      *---------------------                      
+      *  COMMAREA DE ERRORES                      
+      *---------------------                      
+           COPY  WCE0002.                         
+                                                  
+      *------------------------                   
+      *  DESCRIPCION DE ERRORES                   
+      *------------------------                   
+           COPY  WCE0016.                         
+                                                  
+      *-------------------                        
+      *  INCLUDE DE TABLAS                        
+      *-------------------                        
+           EXEC SQL                               
+                INCLUDE SQLCA                     
+           END-EXEC.                              
+                                                  
+           EXEC SQL                               
+                INCLUDE GIDV2204                
+           END-EXEC.                            
+                                                
+           EXEC SQL                             
+                DECLARE CUR-JUZGADO CURSOR FOR  
+                SELECT G2204NROEJUZGADO,        
+                       G2204NOMBREJUZGADO       
+                  FROM GIV2204                  
+           END-EXEC.                            
+                                                
+      *===================                      
+       PROCEDURE DIVISION.                      
+      *===================                      
+                                                
+      *----------------------                   
+       0000-CUERPO-PRINCIPAL.                   
+      *----------------------                   
+                                                
+           PERFORM 1000-INICIO           
+              THRU 1000-INICIO-FIN       
+                                         
+           PERFORM 2000-PROCESO          
+              THRU 2000-PROCESO-FIN      
+                                         
+           PERFORM 3000-FINAL            
+              THRU 3000-FINAL-FIN.       
+                                         
+      *--------------------------        
+       0000-CUERPO-PRINCIPAL-FIN.        
+      *--------------------------        
+           EXIT.                         
+                                         
+      *------------                      
+       1000-INICIO.                      
+      *------------                      
+                                         
+           INITIALIZE WCE0002-DFHCOMMAREA       
+                      WOO25-SALIDA              
+      *                                         
+           EXEC CICS                            
+                ASSIGN CHANNEL(WS-CANAL)        
+           END-EXEC.                            
+                                                
+      *----------------                         
+       1000-INICIO-FIN.                         
+      *----------------                         
+           EXIT.                                
+                                                
+      *-------------                            
+       2000-PROCESO.                            
+      *-------------                            
+                                                
+           PERFORM 2100-ABRIR-CURSOR            
+              THRU 2100-ABRIR-CURSOR-FIN        
+      *                                                          
+           PERFORM 2200-LEER-CURSOR                              
+              THRU 2200-LEER-CURSOR-FIN                          
+      *                                                          
+           IF WS-EOF-CURSOR-SI                                   
+              MOVE 1                    TO WCE0002-RETCODE       
+              MOVE 1875                 TO LK-RCODE-SVR0016      
+                                           WCE0002-SQLCODE-FUNC  
+              MOVE 'CUR-JUZGADO'        TO WCE0002-NOMRECURSO    
+      *                                                          
+              PERFORM 6000-LINK-MSG-ERR                          
+                 THRU 6000-LINK-MSG-ERR-FIN                      
+           END-IF                                                
+      *                                                          
+           PERFORM 2300-RECORRER-CURSOR                          
+              THRU 2300-RECORRER-CURSOR-FIN                      
+             UNTIL WS-EOF-CURSOR-SI                              
+      *                                                          
+           PERFORM 2400-CERRAR-CURSOR                  
+              THRU 2400-CERRAR-CURSOR-FIN              
+      *                                                
+           PERFORM 3100-GRABA-CONT-SALIDA              
+              THRU 3100-GRABA-CONT-SALIDA-FIN.         
+                                                       
+      *-----------------                               
+       2000-PROCESO-FIN.                               
+      *-----------------                               
+           EXIT.                                       
+                                                       
+      *------------------                              
+       2100-ABRIR-CURSOR.                              
+      *------------------                              
+                                                       
+           SET  WS-EOF-CURSOR-NO          TO TRUE      
+      *                                                
+           EXEC SQL                                    
+                OPEN CUR-JUZGADO                                        
+           END-EXEC                                                     
+      *                                                                 
+           EVALUATE SQLCODE                                             
+               WHEN 0                                                   
+                    CONTINUE                                            
+               WHEN OTHER                                               
+                    MOVE 1                     TO WCE0002-RETCODE       
+                    MOVE ZEROES                TO LK-RCODE-SVR0016      
+                    MOVE SQLCODE               TO WCE0002-SQLCODE-FUNC  
+                    MOVE 'OCURSOR'             TO WCE0002-NOMRECURSO    
+                    MOVE 'OPEN CURSOR'         TO WCE0002-MENSERROR     
+                    PERFORM 6000-LINK-MSG-ERR                           
+                       THRU 6000-LINK-MSG-ERR-FIN                       
+           END-EVALUATE.                                                
+                                                                        
+      *----------------------                                           
+       2100-ABRIR-CURSOR-FIN.                                           
+      *----------------------                           
+           EXIT.                                        
+                                                        
+      *-----------------                                
+       2200-LEER-CURSOR.                                
+      *-----------------                                
+                                                        
+           EXEC SQL                                     
+                FETCH  CUR-JUZGADO                      
+                 INTO :G2204NROEJUZGADO,                
+                      :G2204NOMBREJUZGADO               
+           END-EXEC                                     
+      *                                                 
+           EVALUATE SQLCODE                             
+               WHEN +0                                  
+                    CONTINUE                            
+               WHEN +100                                
+                    SET WS-EOF-CURSOR-SI       TO TRUE  
+               WHEN OTHER                                               
+                    MOVE 1                     TO WCE0002-RETCODE       
+                    MOVE ZEROES                TO LK-RCODE-SVR0016      
+                    MOVE SQLCODE               TO WCE0002-SQLCODE-FUNC  
+                    MOVE 'FCURSOR'             TO WCE0002-NOMRECURSO    
+                    MOVE 'FETCH CURSOR'        TO WCE0002-MENSERROR     
+                    PERFORM 6000-LINK-MSG-ERR                           
+                       THRU 6000-LINK-MSG-ERR-FIN                       
+           END-EVALUATE.                                                
+                                                                        
+      *---------------------                                            
+       2200-LEER-CURSOR-FIN.                                            
+      *---------------------                                            
+           EXIT.                                                        
+                                                                        
+      *---------------------                                            
+       2300-RECORRER-CURSOR.                                            
+      *---------------------                                            
+                                                                        
+           ADD 1                       TO WS-CANT                       
+      *                                                                 
+           MOVE G2204NROEJUZGADO       TO WOO25-NRO-JUZGADO  (WS-CANT)  
+           MOVE G2204NOMBREJUZGADO     TO WOO25-JUEZ-A-CARGO (WS-CANT)  
+      *                                                                 
+           PERFORM 2200-LEER-CURSOR                                     
+              THRU 2200-LEER-CURSOR-FIN.                                
+                                                                        
+      *-------------------------                                        
+       2300-RECORRER-CURSOR-FIN.                                        
+      *-------------------------                                        
+           EXIT.                                                        
+                                                                        
+      *-------------------------                                        
+       2400-CERRAR-CURSOR.                                              
+      *-------------------------                                        
+           EXEC SQL                                                    
+                CLOSE CUR-JUZGADO                                      
+           END-EXEC                                                    
+      *                                                                
+           EVALUATE SQLCODE                                            
+               WHEN +0                                                 
+                    CONTINUE                                           
+               WHEN OTHER                                              
+                    MOVE 1                     TO WCE0002-RETCODE      
+                    MOVE ZEROES                TO LK-RCODE-SVR0016     
+                    MOVE SQLCODE               TO WCE0002-SQLCODE-FUNC 
+                    MOVE 'CCURSOR'             TO WCE0002-NOMRECURSO   
+                    MOVE 'CLOSE CURSOR'        TO WCE0002-MENSERROR    
+                    PERFORM 6000-LINK-MSG-ERR                          
+                       THRU 6000-LINK-MSG-ERR-FIN                      
+           END-EVALUATE.                                               
+                                                                       
+      *-----------------------                                         
+       2400-CERRAR-CURSOR-FIN.                                       
+      *-----------------------                                       
+           EXIT.                                                     
+                                                                     
+      *------------------                                            
+       6000-LINK-MSG-ERR.                                            
+      *------------------                                            
+                                                                     
+           IF WCE0002-RETCODE = 1 OR 2                               
+              MOVE ZEROES                 TO WCE0002-CANTERRORES     
+      *                                                              
+              IF LK-RCODE-SVR0016 = ZEROES                           
+                 MOVE WS-PROGRAMA         TO WCE0002-NOMCOMPONENTE   
+      *                                                              
+                 PERFORM 8000-TERMINO-ANORMAL                        
+                    THRU 8000-TERMINO-ANORMAL-FIN                    
+      *                                                              
+              END-IF                                                 
+      *                                                              
+           ELSE                                                      
+              ADD  1                      TO WCE0002-CANTERRORES     
+      *                                                              
+           END-IF                                                    
+      *                                                              
+           MOVE WCE0002-CANTERRORES       TO WS-CANT-ERR             
+      *                                                              
+           IF LK-RCODE-SVR0016 > ZEROES                              
+              MOVE LENGTH OF LK-COMMAREA  TO WS-COM-LEN              
+      *                                                              
+              EXEC CICS                                              
+                   LINK  PROGRAM('SVP0016')                          
+                        COMMAREA(LK-COMMAREA)                        
+                          LENGTH(WS-COM-LEN)                         
+                        NOHANDLE                                     
+              END-EXEC                                               
+      *                                                              
+              IF EIBRESP NOT = DFHRESP(NORMAL)                         
+                 MOVE 1                   TO WCE0002-RETCODE           
+                 MOVE EIBRESP             TO WCE0002-SQLCODE           
+                 MOVE 'LSVP0016'          TO WCE0002-NOMRECURSO        
+                 MOVE WS-PROGRAMA         TO WCE0002-NOMCOMPONENTE     
+                 MOVE WS-ERR-LINK         TO WCE0002-MENSERROR         
+                 MOVE ZEROES              TO WCE0002-CANTERRORES       
+                 PERFORM 8000-TERMINO-ANORMAL                          
+                    THRU 8000-TERMINO-ANORMAL-FIN                      
+              END-IF                                                   
+      *                                                                
+           END-IF                                                      
+      *                                                                
+           MOVE WS-PROGRAMA            TO WCE0002-NOMCOMPONENTE        
+      *                                                                
+           IF WS-CANT-ERR > 100                                        
+              MOVE 1                   TO WCE0002-RETCODE              
+              MOVE ZEROES              TO WCE0002-SQLCODE              
+              MOVE 'CANT-ERR'          TO WCE0002-NOMRECURSO            
+              MOVE WS-PROGRAMA         TO WCE0002-NOMCOMPONENTE         
+              MOVE WS-ERR-LIMITE       TO WCE0002-MENSERROR             
+              MOVE ZEROES              TO WCE0002-CANTERRORES           
+      *                                                                 
+              PERFORM 8000-TERMINO-ANORMAL                              
+                 THRU 8000-TERMINO-ANORMAL-FIN                          
+      *                                                                 
+           END-IF                                                       
+      *                                                                 
+           IF WS-CANT-ERR > ZEROES                                      
+              MOVE ZEROES              TO WCE0002-SQLCODE               
+              MOVE SPACES              TO WCE0002-NOMRECURSO            
+              MOVE SPACES              TO WCE0002-MENSERROR             
+      *                                                                 
+              MOVE LK-RCODE-SVR0016    TO WCE0002-CODERROR(WS-CANT-ERR) 
+              MOVE LK-CORTA-SVR0016    TO WCE0002-LEYCORTA(WS-CANT-ERR) 
+              MOVE LK-LARGA-SVR0016    TO WCE0002-LEYLARGA(WS-CANT-ERR) 
+              MOVE WS-ORDEN-CAMPO      TO WCE0002-CAMPOERR(WS-CANT-ERR) 
+              MOVE WS-NRO-FILA         TO WCE0002-NROFILA (WS-CANT-ERR) 
+      *                                                                 
+           ELSE                                                         
+      *                                                                 
+            IF LK-RCODE-SVR0016 > ZEROES                                
+            MOVE LK-LARGA-SVR0016      TO WCE0002-MENSERROR             
+      *                                                                 
+            END-IF                                                      
+      *                                                                 
+              PERFORM 8000-TERMINO-ANORMAL                              
+                 THRU 8000-TERMINO-ANORMAL-FIN                          
+      *                                                                 
+           END-IF.                                                      
+                                                                        
+      *----------------------                                           
+       6000-LINK-MSG-ERR-FIN.                                           
+      *----------------------                                           
+           EXIT.                                               
+                                                               
+      *---------------------                                   
+       8000-TERMINO-ANORMAL.                                   
+      *---------------------                                   
+                                                               
+           EXEC CICS                                           
+                DELETE CONTAINER(CONTAINER-OOJO25)             
+                         CHANNEL(WS-CANAL)                     
+                        NOHANDLE                               
+           END-EXEC                                            
+      *                                                        
+           IF EIBRESP NOT = DFHRESP (NORMAL)                   
+              CONTINUE                                         
+           END-IF                                              
+      *                                                        
+           EXEC CICS                                           
+                PUT CONTAINER(CONTAINER-EOJO25)                
+                      CHANNEL(WS-CANAL)                          
+                         FROM(WCE0002-DFHCOMMAREA)               
+                      FLENGTH(LENGTH OF WCE0002-DFHCOMMAREA)     
+                     NOHANDLE                                    
+           END-EXEC                                              
+      *                                                          
+           PERFORM 3000-FINAL                                    
+              THRU 3000-FINAL-FIN.                               
+                                                                 
+      *-------------------------                                 
+       8000-TERMINO-ANORMAL-FIN.                                 
+      *-------------------------                                 
+           EXIT.                                                 
+                                                                 
+      *-----------                                               
+       3000-FINAL.                                               
+      *-----------                                               
+                                                                 
+           EXEC CICS                                                    
+                RETURN                                                  
+           END-EXEC.                                                    
+                                                                        
+      *---------------                                                  
+       3000-FINAL-FIN.                                                  
+      *---------------                                                  
+           EXIT.                                                        
+                                                                        
+      *-----------------------                                          
+       3100-GRABA-CONT-SALIDA.                                          
+      *-----------------------                                          
+                                                                        
+           MOVE 0                   TO  WOO25-RETCODE-S                 
+           MOVE WS-CANT             TO  WOO25-CANT-REG-S                
+      *                                                                 
+           COMPUTE WS-LENGTH-CABECERA = LENGTH OF WOO25-SALIDA   -      
+                                       (LENGTH OF WOO25-LISTA-S  * 100) 
+      *                                                                 
+           COMPUTE WS-LENGTH-REAL     = WS-LENGTH-CABECERA       +      
+                                       (LENGTH OF WOO25-LISTA-S   *     
+                                        WOO25-CANT-REG-S)               
+      *                                                                 
+           EXEC CICS                                                    
+                 PUT CONTAINER(CONTAINER-OOJO25)                        
+                       CHANNEL(WS-CANAL)                                
+                          FROM(WOO25-SALIDA)                            
+                       FLENGTH(WS-LENGTH-REAL)                          
+                      NOHANDLE                                          
+           END-EXEC                                                     
+      *                                                                 
+           IF EIBRESP NOT = DFHRESP (NORMAL)                            
+              MOVE 1                        TO WCE0002-RETCODE          
+              MOVE ZEROES                   TO LK-RCODE-SVR0016         
+              MOVE EIBRESP                  TO WCE0002-SQLCODE-FUNC     
+              MOVE CONTAINER-OOJO25         TO WCE0002-NOMRECURSO       
+              MOVE WS-ERR-PUT               TO WCE0002-MENSERROR      
+              PERFORM 6000-LINK-MSG-ERR                               
+                 THRU 6000-LINK-MSG-ERR-FIN                           
+           END-IF.                                                    
+                                                                      
+      *---------------------------                                    
+       3100-GRABA-CONT-SALIDA-FIN.                                    
+      *---------------------------                                    
+           EXIT.                                                      
+                                                                      
+      *------------------------------------------------------------   
+      *            F I N   P R O G R A M A   OJO0025              *   
+      *------------------------------------------------------------   
+                                                                      

@@ -1,0 +1,16 @@
+      ******************************************************************
+      *       DEFINICION DE LOS CONTENEDORES PGM OJO0025               *
+      ******************************************************************
+                                                                        
+       01 CONTAINER-OOJO25      PIC X(16) VALUE 'CTOJO0025-O'.          
+                                                                        
+      * ------ AREA DEL CONTENEDOR DE ERRORES  -------------            
+       01 CONTAINER-EOJO25      PIC X(16) VALUE 'CTERRORES'.            
+                                                                        
+      * ------ AREA DE SALIDA DEL CONTENEDOR -------------------------- 
+       01  WOO25-SALIDA.                                                
+           03 WOO25-RETCODE-S               PIC 99.                     
+           03 WOO25-CANT-REG-S              PIC 9(07).                  
+           03 WOO25-LISTA-S          OCCURS 100 TIMES.                  
+              05 WOO25-NRO-JUZGADO          PIC 9(03).                  
+              05 WOO25-JUEZ-A-CARGO         PIC X(80).                  

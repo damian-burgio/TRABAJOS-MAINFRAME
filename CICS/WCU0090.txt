@@ -1,0 +1,25 @@
+      ******************************************************************
+      *       DEFINICION DE LOS CONTENEDORES PGM CUO0079               *
+      ******************************************************************
+                                                                        
+       01  WCU0090-CONTAINER-I      PIC X(16) VALUE 'CTCUO0090-I'.      
+       01  WCU0090-CONTAINER-O      PIC X(16) VALUE 'CTCUO0090-O'.      
+                                                                        
+      * ------ AREA DEL CONTENEDOR DE ERRORES  -------------            
+       01  WCU0090-CONTAINER-E      PIC X(16) VALUE 'CTERRORES'.        
+                                                                        
+      * ------ AREA DE ENTRADA DEL CONTENEDOR ------------------------- 
+       01 WCU0090-ENTRADA.                                              
+          03 WCU0090-CALLE-I                    PIC 9(10).              
+                                                                        
+      * ------ AREA DE SALIDA DEL CONTENEDOR -------------------------- 
+       01 WCU0090-SALIDA.                                               
+          03 WCU0090-COD-RET-O                  PIC 9(02).              
+          03 WCU0090-CAN-REG-O                  PIC 9(07).              
+          03 WCU0090-LISTA-O             OCCURS 5000 TIMES.             
+             05 WCU0090-ALT-DES-O               PIC 9(05).      
+             05 WCU0090-ALT-HAS-O               PIC 9(05).      
+             05 WCU0090-COD-POS1-O              PIC X(05).      
+             05 WCU0090-COD-POS2-O              PIC X(03).      
+             05 WCU0090-VEREDA-O                PIC X(01).      
+             05 WCU0090-BARRIO-O                PIC X(40).      

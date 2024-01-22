@@ -1,0 +1,7 @@
+       01  LK16-DFHCOMMAREA.                            
+           03 LK-COMMAREA              PIC X(32500).    
+           03 LK-SVR0016 REDEFINES LK-COMMAREA.         
+              05 LK-RCODE-SVR0016      PIC 9(05).       
+              05 LK-CORTA-SVR0016      PIC X(40).       
+              05 LK-LARGA-SVR0016      PIC X(240).      
+              05 LK-RESTO-COMMAREA     PIC X(32215).    
