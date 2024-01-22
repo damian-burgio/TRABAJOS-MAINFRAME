@@ -1,7 +1,7 @@
        IDENTIFICATION DIVISION.                                         
        PROGRAM-ID.    LBO0012.                                          
       ************************************************************      
-      * AUTOR: GASTON NEGRETE                                           
+      * AUTOR: BURGIO                                           
       * TRANSACCION: LB12                                               
       * PRUEBA DE PROGRAMAS CICS (PARA PROBAR PROGRAMA GJO0063).        
       ************************************************************      
