@@ -1,0 +1,15 @@
+//JSORT04   JOB (),' ',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,1),
+//  REGION=0M,NOTIFY=&SYSUID
+//*************************************************************
+//* OMITIR ALUMNOS QUE HAN SUSPENDIDO                         *
+//*************************************************************
+//STEP1    EXEC PGM=SORT,PARM=ABEND
+//SORTIN   DD DSN=UDEMY.CUR1.ALUMNOS.V99,DISP=SHR
+//SORTOUT  DD DSN=UDEMY.CUR1.ALUMNOS.S46,
+//            DISP=(,CATLG,DELETE),SPACE=(TRK,(50,10),RLSE)
+//SYSIN    DD *
+  SORT FIELDS=COPY
+  INCLUDE COND=(49,4,ZD,GE,0500)
+//SYSOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+

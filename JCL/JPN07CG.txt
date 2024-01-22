@@ -1,0 +1,19 @@
+//JPN07CGA JOB (),'IBMUSER',NOTIFY=&SYSUID,
+//             MSGCLASS=Q,CLASS=A,MSGLEVEL=(1,1)
+//*
+//* ---------------------------------------------------------------
+//*  JCL QUE EJECUTA EL PGM BATCH PBC1N07 (LECTURA PS EMPLEADOS)
+//* ---------------------------------------------------------------
+//GO     EXEC PGM=PBC1N07,
+//             REGION=0M
+//STEPLIB  DD  DSN=ADCD.Z110.VTAMLIB,DISP=SHR
+//ENTJCL   DD  DSN=UDEMY.CUR1.EMPLEATS,DISP=SHR
+//SYSOUT   DD  SYSOUT=*
+//SYSIN    DD  *
+LISTADO DE EMPLEADOS
+/*
+//SYSPRINT DD  SYSOUT=*
+//CEEDUMP  DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//
+

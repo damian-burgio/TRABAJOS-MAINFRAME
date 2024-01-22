@@ -1,0 +1,11 @@
+//JGDGDEL   JOB (99),'DELETE GDG',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,1),
+//  REGION=0M,NOTIFY=&SYSUID
+//*************************************************************
+//* BORRAR EL GDG EXISTENTE Y EL GDG BASE                     *
+//*************************************************************
+//DLTEGDG  EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+  DELETE (UDEMY.CUR1.GDG) GDG FORCE
+/*
+

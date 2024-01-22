@@ -1,0 +1,17 @@
+//JSORT06   JOB (),' ',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,1),
+//  REGION=0M,NOTIFY=&SYSUID
+//*************************************************************
+//* GENERAR UN FICHERO FB A PARTIR DE UN VB                   *
+//*************************************************************
+//STEP1    EXEC PGM=SORT,PARM=ABEND
+//SORTIN   DD DSN=UDEMY.CUR1.ALUMNOS.V99,DISP=SHR
+//SORTOUT1 DD DSN=UDEMY.CUR1.ALUMNOS.IN,
+//            DISP=(,CATLG),UNIT=3390,SPACE=(TRK,(50,10),RLSE),
+//            DCB=(RECFM=FB,LRECL=60)
+//SYSIN    DD *
+ SORT FIELDS=COPY
+ OUTFIL FNAMES=SORTOUT1,VTOF,
+ OUTREC=(1:5,60)
+//SYSOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+

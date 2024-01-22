@@ -1,0 +1,82 @@
+//JCOMPR1   JOB (),' ',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,1),
+//  REGION=0M,NOTIFY=&SYSUID,RESTART=STEP7
+//*************************************************************
+//* Copiar un PDS a otro PDS                                  *
+//*************************************************************
+//STEP1    EXEC PGM=IEBCOPY
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD DSN=UDEMY.CUR1.COBOL,DISP=SHR
+//SYSUT2   DD DSN=UDEMY.CUR1.COBOL.COPIA,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=SYSDA,
+//            SPACE=(TRK,(10,5,12),RLSE),
+//            DCB=(DSORG=PO,RECFM=FB,LRECL=80)
+//SYSIN    DD DUMMY
+//*************************************************************
+//* Reemplazar todos los mimebros que tengan el misso nombre  *
+//*************************************************************
+//STEP2    EXEC PGM=IEBCOPY,PARM=REPLACE
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD DSN=UDEMY.CUR1.COBOL,DISP=SHR
+//SYSUT2   DD DSN=UDEMY.CUR1.COBOL.COPIA,DISP=OLD
+//SYSIN    DD *
+  COPY OUTDD=SYSUT2,INDD=SYSUT1
+/*
+//*************************************************************
+//* Reemplazar sólo los miembros especificados                *
+//*************************************************************
+//STEP3    EXEC PGM=IEBCOPY
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD DSN=UDEMY.CUR1.COBOL,DISP=SHR
+//SYSUT2   DD DSN=UDEMY.CUR1.COBOL.COPIA,DISP=OLD
+//SYSIN    DD *
+  COPY OUTDD=SYSUT2,INDD=SYSUT1
+  SELECT MEMBER=((PBC1N03,,R))
+/*
+//*************************************************************
+//* Copiar miembros de un PDS a otro PDS existente            *
+//*************************************************************
+//STEP4    EXEC PGM=IEBCOPY
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD DSN=UDEMY.CUR1.COBOL,DISP=SHR
+//SYSUT2   DD DSN=UDEMY.CUR1.CPY,DISP=OLD
+//SYSIN    DD *
+  COPY OUTDD=SYSUT2,INDD=SYSUT1
+  SELECT MEMBER=PBC1N04,PBC1N03
+/*
+//*************************************************************
+//* Copiar miembros de un PDS a VARIOS PDS                    *
+//*************************************************************
+//STEP5    EXEC PGM=IEBCOPY
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD DSN=UDEMY.CUR1.COBOL,DISP=SHR
+//SYSUT2   DD DSN=UDEMY.CUR1.CPY,DISP=OLD
+//SYSUT3   DD DSN=UDEMY.CUR1.COBOL.COPIA,DISP=OLD
+//SYSIN    DD *
+  COPY OUTDD=SYSUT2,INDD=SYSUT1
+  SELECT MEMBER=PBC1N04,PBC1N03
+  COPY OUTDD=SYSUT3,INDD=SYSUT1
+  SELECT MEMBER=PBC1N05
+/*
+//*************************************************************
+//* Copiar con exclusiones                                    *
+//*************************************************************
+//STEP6    EXEC PGM=IEBCOPY
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD DSN=UDEMY.CUR1.COBOL,DISP=SHR
+//SYSUT2   DD DSN=UDEMY.CUR1.CPY,DISP=OLD
+//SYSIN    DD *
+  COPY OUTDD=SYSUT2,INDD=SYSUT1
+  EXCLUDE MEMBER=PBC1N03
+/*
+//*************************************************************
+//* Comprimir un PDS                                          *
+//*************************************************************
+//STEP7    EXEC PGM=IEBCOPY
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD DSN=UDEMY.CUR1.COBOL.COPIA,DISP=SHR
+//SYSUT2   DD DSN=UDEMY.CUR1.COBOL.COPIA,DISP=SHR
+//SYSIN    DD *
+  COPY OUTDD=SYSUT2,INDD=SYSUT1
+/*
+

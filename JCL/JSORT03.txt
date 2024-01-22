@@ -1,0 +1,14 @@
+//JSORT03   JOB (),' ',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,1),
+//  REGION=0M,NOTIFY=&SYSUID
+//*************************************************************
+//* ORDENAR POR CIERTOS CAMPOS (+4 SI VB)                     *
+//*************************************************************
+//STEP1    EXEC PGM=SORT,PARM=ABEND
+//SORTIN   DD DSN=UDEMY.CUR1.ALUMNOS.V99,DISP=SHR
+//SORTOUT  DD DSN=UDEMY.CUR1.ALUMNOS.OUT5,
+//            DISP=(,CATLG,DELETE),SPACE=(TRK,(50,10),RLSE)
+//SYSIN    DD *
+  SORT FIELDS=(49,4,ZD,A,27,9,CH,A,1,3,CH,A)
+//SYSOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+

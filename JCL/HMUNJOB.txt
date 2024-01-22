@@ -1,0 +1,13 @@
+//HMUNJOB  JOB (),'HOLAMUNDO',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,0)
+//STEP1    EXEC PGM=IEBGENER
+//SYSUT1   DD DATA,DLM=$$
+/*******************************************/
+/*                                         */
+/*        Hola Mundo en JCL!               */
+/*******************************************/
+$$
+//SYSUT2   DD SYSOUT=A
+//SYSPRINT DD SYSOUT=A
+//SYSIN    DD DUMMY
+//
+

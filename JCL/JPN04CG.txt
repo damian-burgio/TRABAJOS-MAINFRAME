@@ -1,0 +1,28 @@
+//JPN04CGA JOB (),'IBMUSER',NOTIFY=&SYSUID,
+//             MSGCLASS=Q,CLASS=A,MSGLEVEL=(1,1)
+//*
+//* ---------------------------------------------------------------
+//*  JCL QUE EJECUTA EL PGM BATCH PBC1N04 (LISTADO POR SYSIN)
+//* ---------------------------------------------------------------
+//GO     EXEC PGM=PBC1N04,
+//             REGION=0M
+//STEPLIB  DD  DSN=ADCD.Z110.VTAMLIB,DISP=SHR
+//SYSPRINT DD  SYSOUT=*
+//CEEDUMP  DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//SYSOUT   DD  DSN=UDEMY.CUR1.PBC1N04.SALIDA.V96,
+//             DISP=(NEW,CATLG,DELETE),
+//             SPACE=(TRK,(1,1),RLSE),
+//             DCB=(DSORG=PS,RECFM=FB,LRECL=50,BLKSIZE=0)
+//SYSIN    DD  *
+ LUNES
+ MARTES
+ MIERCOLES
+ JUEVES
+ VIERNES
+ SABADO
+ DOMINGO
+ CARACOLA
+/*
+//
+

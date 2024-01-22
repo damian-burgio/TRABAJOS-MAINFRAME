@@ -1,0 +1,17 @@
+//JBORRA    JOB (),' ',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,1),
+//  REGION=0M,NOTIFY=&SYSUID,RESTART=STEP2
+//*************************************************************
+//* Borrar un fichero                                         *
+//*************************************************************
+//STEP1    EXEC PGM=IEFBR14
+//DDIN     DD DSN=UDEMY.CUR1.PBC1N05.SALIDA.V71,
+//            DISP=(MOD,DELETE,DELETE),UNIT=SYSDA
+//*************************************************************
+//* Catalogar un fichero                                      *
+//*************************************************************
+//STEP2    EXEC PGM=IEFBR14
+//DDIN     DD DSN=UDEMY.CUR1.PBC1N05.SALIDA.V71,
+//            DISP=(NEW,CATLG,DELETE),UNIT=SYSDA,
+//            SPACE=(TRK,(1,1),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=50,BLKSIZE=0)
+

@@ -1,0 +1,36 @@
+//JIDCAMS1  JOB (),' ',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,1),
+//  REGION=0M,NOTIFY=&SYSUID
+//*************************************************************
+//* Comprobar si un fichero existe                            *
+//*************************************************************
+//STEP1    EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+   LISTCAT ENTRIES (UDEMY.CUR1.PBC1N05.SALIDA.V70) ALL
+   IF LASTCC NE 0 THEN DO
+      SET MAXCC=4
+      END
+/*
+//*************************************************************
+//* Comprobar si un fichero tiene datos o está vacío          *
+//*************************************************************
+//STEP2    EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//DDIN     DD DSN=UDEMY.CUR1.PBC1N05.SALIDA.V71,DISP=SHR
+//SYSIN    DD *
+   PRINT INFILE(DDIN) COUNT(1)
+   IF MAXCC=12 THEN SET MAXCC=4
+/*
+//*************************************************************
+//* Copiar el fichero si no está vacío                        *
+//*************************************************************
+//STEP3    EXEC PGM=SORT,COND=(4,EQ,STEP2)
+//SYSOUT   DD SYSOUT=*
+//SORTIN   DD DSN=UDEMY.CUR1.PBC1N05.SALIDA.V71,DISP=SHR
+//SORTOUT  DD DSN=UDEMY.CUR1.PBC1N05.SALIDA.V78,
+//            DISP=(,CATLG),
+//            SPACE=(TRK,(10,5),RLSE)
+//SYSIN    DD *
+   SORT FIELDS=COPY
+/*
+

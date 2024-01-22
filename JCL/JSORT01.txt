@@ -1,0 +1,17 @@
+//JSORT01   JOB (),' ',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,1),
+//  REGION=0M,NOTIFY=&SYSUID
+//*************************************************************
+//* AGRUPAR TODOS LOS FICHERS DE ENTRADA EN UNA úNICA SALIDA  *
+//*************************************************************
+//STEP01   EXEC PGM=SORT
+//SORTIN   DD DSN=UDEMY.CUR1.ALUMNOS.V01,DISP=SHR
+//         DD DSN=UDEMY.CUR1.ALUMNOS.V02,DISP=SHR
+//SORTOUT  DD DSN=UDEMY.CUR1.ALUMNOS.V99,
+//            DISP=(,CATLG,DELETE),UNIT=SYSDA,SPACE=(TRK,(10,5),RLSE),
+//            DCB=*.SORTIN
+//SYSIN    DD *
+  SORT FIELDS=COPY
+/*
+//SYSOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+

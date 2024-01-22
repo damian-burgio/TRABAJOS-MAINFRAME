@@ -1,0 +1,30 @@
+//JIDCAMS2  JOB (),' ',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,1),
+//  REGION=0M,NOTIFY=&SYSUID
+//*************************************************************
+//* Comprobar si un fichero existe                            *
+//*************************************************************
+//STEP01   EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+   LISTCAT ENTRIES (UDEMY.CUR1.PBC1N05.SALIDA.V77) ALL
+   IF LASTCC NE 0 THEN DO
+      SET MAXCC=4
+      END
+/*
+//*************************************************************
+//* Copiar el fichero si no está vacío                        *
+//*************************************************************
+//COND1    IF (STEP01.RC > 0) THEN
+//* No ejecuta bloque COND1 porque el fichero no existe
+//COND1    ELSE
+//STEP05   EXEC PGM=SORT
+//SYSOUT   DD SYSOUT=*
+//SORTIN   DD DSN=UDEMY.CUR1.PBC1N05.SALIDA.V77,DISP=SHR
+//SORTOUT  DD DSN=UDEMY.CUR1.PBC1N05.SALIDA.V75,
+//            DISP=(,CATLG),
+//            SPACE=(TRK,(10,5),RLSE)
+//SYSIN    DD *
+   SORT FIELDS=COPY
+/*
+//COND1    ENDIF
+

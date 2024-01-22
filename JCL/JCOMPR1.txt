@@ -1,0 +1,25 @@
+//JCOMPR2   JOB (),' ',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,1),
+//  REGION=0M,NOTIFY=&SYSUID,RESTART=STEP1
+//*************************************************************
+//* Comparar dos ficheros PDS o SDS                           *
+//*************************************************************
+//STEP1    EXEC PGM=IEBCOMPR
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD DSN=UDEMY.CUR1.PBC1N05.SALIDA.V70,DISP=SHR
+//SYSUT2   DD DSN=UDEMY.CUR1.PBC1N05.SALIDA.V71,DISP=SHR
+//SYSIN    DD *
+   COMPARE TYPORG=PS
+/*
+//
+//*************************************************************
+//* Comparar dos ficheros PDS o SDS                           *
+//*************************************************************
+//STEP2    EXEC PGM=IEBCOMPR
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD DSN=UDEMY.CUR1.COBOL,DISP=SHR
+//SYSUT2   DD DSN=UDEMY.CUR1.COBOL.COPIA,DISP=SHR
+//SYSIN    DD *
+   COMPARE TYPORG=PO
+/*
+//
+

@@ -1,0 +1,14 @@
+//JGDGCPY   JOB (99),'COPIAR GDG',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,1),
+//  REGION=0M,NOTIFY=&SYSUID
+//*************************************************************
+//* COPIAR UN PS EN UNA NUEVA GENERACION DEL GDG              *
+//*************************************************************
+//COPYGDG  EXEC PGM=IEBGENER
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD DSN=UDEMY.CUR1.PBC1N05.SALIDA.V70,DISP=SHR
+//SYSUT2   DD DSN=UDEMY.CURSO.GDG(+1),
+//            DISP=(NEW,CATLG,DELETE),UNIT=SYSDA,
+//            SPACE=(TRK,(10,5),RLSE),
+//            DCB=*.SYSUT1
+//SYSIN    DD DUMMY
+

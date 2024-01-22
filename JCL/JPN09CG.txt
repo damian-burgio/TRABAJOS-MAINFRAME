@@ -1,0 +1,16 @@
+//JPN09CGA JOB (),'IBMUSER',NOTIFY=&SYSUID,
+//             MSGCLASS=Q,CLASS=A,MSGLEVEL=(1,1)
+//*
+//* ---------------------------------------------------------------
+//*  JCL QUE EJECUTA EL PGM BATCH PBC1N09 (REGRABAR FICHERO PS)
+//* ---------------------------------------------------------------
+//GO     EXEC PGM=PBC1N09,
+//             REGION=0M
+//STEPLIB  DD  DSN=ADCD.Z110.VTAMLIB,DISP=SHR
+//FICH01   DD  DSN=UDEMY.CUR1.EMPLEATS,DISP=SHR
+//SYSOUT   DD  SYSOUT=*
+//SYSPRINT DD  SYSOUT=*
+//CEEDUMP  DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//
+

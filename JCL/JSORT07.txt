@@ -1,0 +1,17 @@
+//JSORT07   JOB (),' ',CLASS=A,MSGCLASS=Q,MSGLEVEL=(1,1),
+//  REGION=0M,NOTIFY=&SYSUID
+//*************************************************************
+//* EDITAR CAMPOS NUMERICOS  CON OUTREC                       *
+//*************************************************************
+//STEP1    EXEC PGM=SORT,PARM=ABEND
+//SORTIN   DD DSN=UDEMY.CUR1.ALUMNOS.IN,DISP=SHR
+//SORTOUT  DD DSN=UDEMY.CUR1.ALUMNOS.S17,
+//            DISP=(,CATLG),UNIT=3390,SPACE=(TRK,(50,10),RLSE),
+//            DCB=(RECFM=FB,LRECL=65)
+//SYSIN    DD *
+ SORT FIELDS=COPY
+ OUTREC FIELDS=(01,48,49,06,PD,EDIT=(SIIIIIIIIIT.TT),
+                               SIGNS=(+,-,,),LENGTH=12)
+//SYSOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+
