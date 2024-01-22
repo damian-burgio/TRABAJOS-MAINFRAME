@@ -1,0 +1,25 @@
+//ICET04   JOB NOTIFY=&SYSUID                                     
+//*                                                               
+//* COPIA DATOS DE UN ARCHIVO A OTRO DESPUES DE                   
+//* ORDENARLO POR DETERMINADA CONDICION.                          
+//*------------------------------------------------------------*  
+//STEP010  EXEC PGM=ICETOOL                                       
+//*------------------------------------------------------------*  
+//DFSMSG   DD SYSOUT=*                                            
+//TOOLMSG  DD SYSOUT=*                                            
+//DD1      DD *                                                   
+01000 000003400000647                                             
+01700 000003400000647                                             
+01100 000003400000645                                             
+01200 000003400000647                                             
+01600 000005500000641                                             
+01300 000003400000645                                             
+01400 000003400000647                                             
+01500 000003400000645                                             
+//DD2      DD SYSOUT=*                
+//TOOLIN   DD *                       
+ COPY FROM(DD1) TO(DD2) USING(CTL1)   
+/*                                    
+//CTL1CNTL  DD *                      
+ SORT FIELDS=(1,5,CH,A)               
+/*                                    

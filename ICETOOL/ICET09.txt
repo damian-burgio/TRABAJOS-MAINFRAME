@@ -1,0 +1,24 @@
+//ICET09   JOB NOTIFY=&SYSUID                                
+//**************************************************         
+//PASO0010 EXEC PGM=ICETOOL                                  
+//TOOLMSG  DD SYSOUT=*                                       
+//DFSMSG   DD SYSOUT=*                                       
+//DD1  DD *                                                  
+000800                                                       
+000800                                                       
+000900                                                       
+000900                                                       
+001000                                                       
+001100                                                       
+001200                                                       
+//**************************************************         
+//* ARCHIVOS DE SALIDA.                                      
+//* DD1   ---->   CONTIENE LOS REGISTROS UNICOS              
+//* DD2   ---->   CONTIENE LOS REGISTROS DUPLICADOS          
+//**************************************************         
+//DD2  DD SYSOUT=*                                      
+//DD3  DD SYSOUT=*                                      
+//TOOLIN   DD *                                         
+SELECT FROM(DD1) TO(DD2)   ON(01,06,PD) NODUPS          
+SELECT FROM(DD1) TO(DD3)   ON(01,06,PD) ALLDUPS         
+/*                                                      

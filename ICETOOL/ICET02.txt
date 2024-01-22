@@ -1,0 +1,27 @@
+//ICET02   JOB NOTIFY=&SYSUID                                     
+//*                                                               
+//* CUENTA EL NUMERO DE OCURRENCIAS DE UN VALOR.                  
+//*                                                               
+//*------------------------------------------------------------*  
+//STEP010  EXEC PGM=ICETOOL                                       
+//*------------------------------------------------------------*  
+//TOOLMSG  DD SYSOUT=*                                            
+//DFSMSG   DD SYSOUT=*                                            
+//INDD     DD *                                                   
+CABA                                                              
+CABA                                                              
+CABA                                                              
+MDQ                                                               
+MDQ                                                               
+3DF                                                               
+3DF                                                               
+3DF                                                               
+/*                                                   
+//OUTDD    DD SYSOUT=*                               
+//TOOLIN   DD *                                      
+ OCCUR FROM(INDD) LIST(OUTDD) -                      
+     LINES(999) -                                    
+     TITLE('REPORTE SOBRE NRO DE OCURRENCIAS') -     
+     HEADER('VALOR') ON(1,4,CH) -                    
+     HEADER('NO DE OCURRENCIAS') ON(VALCNT,N15)      
+/*                                                   

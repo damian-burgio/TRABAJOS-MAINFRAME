@@ -1,0 +1,19 @@
+//ICET01   JOB NOTIFY=&SYSUID                                    
+//*------------------------------------------------------------* 
+//* DE UN ARCHIVO CON MUCHOS REGISTROS, SOLO COPIA               
+//* LOS TRES PRIMEROS.                                           
+//*------------------------------------------------------------* 
+//STEP010  EXEC PGM=ICETOOL                                      
+//TOOLMSG  DD SYSOUT=*                                           
+//DFSMSG   DD SYSOUT=*                                           
+//IN1      DD *                                                  
+1000                                                             
+1001                                                             
+1002                                                             
+1003                                                             
+1004                                                             
+1005                                                             
+//OUT1     DD SYSOUT=*                                           
+//TOOLIN   DD *                                                  
+  COPY FROM(IN1) TO(OUT1) USING(CTL1)                            
+/*                                                               

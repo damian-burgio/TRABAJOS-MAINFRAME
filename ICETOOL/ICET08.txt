@@ -1,0 +1,19 @@
+//ICET07   JOB NOTIFY=&SYSUID                                       
+//*                                                                 
+//* CONTADOR DE REGISTROS.                                          
+//*                                                                 
+//*------------------------------------------------------------*    
+//STEP010  EXEC PGM=ICETOOL                                         
+//*------------------------------------------------------------*    
+//TOOLMSG  DD SYSOUT=*                                              
+//DFSMSG   DD SYSOUT=*                                              
+//IN       DD *                                                     
+3001                                                                
+3006                                                                
+3007                                                                
+3008                                                                
+3009                                                                
+//OUTPUT   DD SYSOUT=*                                              
+//TOOLIN   DD *                                                     
+ COUNT FROM(IN)                                                     
+/*                                                                  

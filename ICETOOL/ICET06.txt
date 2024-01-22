@@ -1,0 +1,19 @@
+//ICET06   JOB NOTIFY=&SYSUID                                    
+//*                                                              
+//* CUENTA LAS OCURRENCIAS EN UN ARCHIVO Y ADEMAS NOS DICE       
+//* CUALES SON MAYORES A 3000.                                   
+//*------------------------------------------------------------* 
+//STEP010  EXEC PGM=ICETOOL                                      
+//*------------------------------------------------------------* 
+//TOOLMSG  DD SYSOUT=*                                           
+//DFSMSG   DD SYSOUT=*                                           
+//DD1      DD *                                                  
+3001                                                             
+3005                                                             
+3006                                                             
+1007                                                             
+1008                                                             
+1006                                                             
+//TOOLIN   DD *                                                  
+  RANGE FROM(DD1) ON(1,4,ZD) HIGHER(3000)                        
+/*

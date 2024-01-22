@@ -1,0 +1,18 @@
+//ICET05   JOB NOTIFY=&SYSUID                                      
+//*                                                                
+//* CUENTA LAS OCURRENCIAS EN UN ARCHIVO Y CON EMPTY VALIDA QUE    
+//* NO ESTA VACIO.                                                 
+//*------------------------------------------------------------*   
+//STEP010  EXEC PGM=ICETOOL                                        
+//*------------------------------------------------------------*   
+//TOOLMSG  DD SYSOUT=*                                             
+//DFSMSG   DD SYSOUT=*                                             
+//DD1      DD *                                                    
+1000                                                               
+1001                                                               
+1002                                                               
+1009                                                               
+1010                                                               
+//TOOLIN   DD *                                                    
+  COUNT FROM(DD1) EMPTY                                            
+/*                                                                 

@@ -1,0 +1,25 @@
+//ICET07   JOB NOTIFY=&SYSUID                                    
+//*                                                              
+//* EJEMPLO DE REPORTE.                                          
+//*                                                              
+//*------------------------------------------------------------* 
+//STEP010  EXEC PGM=ICETOOL                                      
+//*------------------------------------------------------------* 
+//TOOLMSG  DD SYSOUT=*                                           
+//DFSMSG   DD SYSOUT=*                                           
+//OUTPUT   DD SYSOUT=*                                           
+//INPUT    DD *                                                  
+3001RICARDO IORIO        11080330                                
+3005CLAUDIO O'CONNOR     12081200                                
+3002ANTONIO ROMANO       13081300                                
+3003CLAUDIO STRUNZ       20011301                                
+//TOOLIN   DD *                                                  
+  DISPLAY FROM(INPUT) LIST(OUTPUT)               -               
+  TITLE('EJEMPLO DE REPORTE') DATE(MD4/) PAGE -  -               
+   HEADER('N.CLIENTE')   ON(1,4,CH)               -        
+   HEADER('NOMBRE')      ON(5,20,CH)              -        
+   HEADER('SALDO')       ON(26,8,ZD,E'99999999')  -        
+   STATLEFT                                       -        
+   TOTAL('TOTAL  ')                               -        
+   AVERAGE('MEDIA  ')                                      
+ /*                                                        
