@@ -1,0 +1,127 @@
+    B386900.AG00D.JCLLIB(VSAMKSDS) - 01.03          Columns 00001 00072 
+***************************** Top of Data ******************************
+//B386900J JOB CLASS=A,                                                 
+//             MSGCLASS=C,                                              
+//             NOTIFY=&SYSUID,                                          
+//             MSGLEVEL=(1,1)                                           
+//********************************************************************* 
+//* CREA UN ARCHIVO VSAM KSDS                                           
+//********************************************************************* 
+//STEP1  EXEC PGM=IDCAMS                                                
+//SYSPRINT DD  SYSOUT=*                                                 
+//SYSIN    DD  *                                                        
+   DEFINE CLUSTER (NAME(B386900.DATOS.KSDSFILE)  -                      
+   INDEXED                                       -                      
+   KEYS(4 0)                                     -                      
+   RECSZ(100 100)                                -                      
+   CYLINDERS(2 1)                                -                      
+   CISZ(4096)                                    -                      
+   FREESPACE(10 20) )                            -                      
+   DATA (NAME(B386900.DATOS.KSDSFILE.DATA))      -                      
+   INDEX (NAME(B386900.DATOS.KSDSFILE.INDEX))                           
+/*                                                                      
+**************************** Bottom of Data ****************************
+
+
+    B386900.AG00D.JCLLIB(LISTCAT) - 01.01           Columns 00001 00072 
+***************************** Top of Data ******************************
+//B386900J JOB CLASS=A,                                                 
+//             MSGCLASS=C,                                              
+//             NOTIFY=&SYSUID,                                          
+//             MSGLEVEL=(1,1)                                           
+//********************************************************************* 
+//* LISTCAT MUESTRA LAS PROPIEDADES DEL ARCHIVO VSAM                    
+//********************************************************************* 
+//STEP1  EXEC PGM=IDCAMS                                                
+//SYSOUT   DD  SYSOUT=*                                                 
+//SYSPRINT DD  SYSOUT=*                                                 
+//SYSIN    DD  *                                                        
+   LISTCAT ENTRIES(B386900.VSAM.KSDSFILE) ALL                           
+/*                                                                      
+**************************** Bottom of Data ****************************
+
+
+    B386900.AG00D.JCLLIB(PRINT) - 01.01             Columns 00001 00072 
+***************************** Top of Data ******************************
+//B386900J JOB CLASS=A,                                                 
+//             MSGCLASS=C,                                              
+//             NOTIFY=&SYSUID,                                          
+//             MSGLEVEL=(1,1)                                           
+//********************************************************************* 
+//* PRINT MUESTRA EL CONTENIDO DE UN ARCHIVO VSAM                       
+//********************************************************************* 
+//STEP1  EXEC PGM=IDCAMS                                                
+//SYSOUT   DD  SYSOUT=*                                                 
+//SYSPRINT DD  SYSOUT=*                                                 
+//INDD     DD  DSN=B386900.DATOS.KSDSFILE,DISP=SHR                      
+//SYSIN    DD  *                                                        
+   PRINT         -                                                      
+   INFILE (INDD) -                                                      
+   CHAR                                                                 
+/*                                                                      
+**************************** Bottom of Data ****************************
+                                                                        
+
+
+    B386900.AG00D.JCLLIB(REPRO1) - 01.05            Columns 00001 00072 
+***************************** Top of Data ******************************
+//B386900J JOB CLASS=A,                                                 
+//             MSGCLASS=C,                                              
+//             NOTIFY=&SYSUID,                                          
+//             MSGLEVEL=(1,1)                                           
+//********************************************************************* 
+//* REPRO COPIA DATOS DE UN PS A UN ARCHIVO VSAM                        
+//********************************************************************* 
+//STEP1  EXEC PGM=IDCAMS                                                
+//SYSOUT   DD  SYSOUT=*                                                 
+//SYSPRINT DD  SYSOUT=*                                                 
+//SYSIN    DD  *                                                        
+//REPRO                               -                                 
+//INDATASET  (B386900.DATOS.BCARIOS)  -                                 
+//OUTDATASET (B386900.DATOS.KSDSFILE)                                   
+/*                                                                      
+**************************** Bottom of Data ****************************
+                                                                        
+
+    B386900.AG00D.JCLLIB(REPRO2) - 01.01            Columns 00001 0007
+***************************** Top of Data ****************************
+//B386900J JOB CLASS=A,                                               
+//             MSGCLASS=C,                                            
+//             NOTIFY=&SYSUID,                                        
+//             MSGLEVEL=(1,1)                                         
+//********************************************************************
+//* REPRO COPIA DATOS DE UN ARCHIVO VSAM A UN PS                      
+//********************************************************************
+//STEP1  EXEC  PGM=IDCAMS                                             
+//SYSOUT   DD  SYSOUT=*                                               
+//SYSPRINT DD  SYSOUT=*                                               
+//INDD     DD  DSN=B386900.DATOS.KSDSFILE,DISP=SHR                    
+//OUTDD    DD  DSN=B386900.KSDSFILE.UNLOAD,                           
+//             DISP=(NEW,CATLG,DELETE),                               
+//             SPACE=(TRK,(1,1),RLSE),                                
+//             UNIT=SYSDA,                                            
+//             DCB=(DSORG=PS,RECFM=FB,LRECL=100,BLKSIZE=0)            
+//SYSIN    DD  *                                                      
+   REPRO           -                                                  
+   INFILE  (INDD)  -                                                    
+   OUTFILE (OUTDD)                                                      
+/*                                                                      
+**************************** Bottom of Data ****************************
+                                                                        
+
+    B386900.AG00D.JCLLIB(DELVSAM) - 01.02           Columns 00001 00072 
+***************************** Top of Data ******************************
+//B386900J JOB CLASS=A,                                                 
+//             MSGCLASS=C,                                              
+//             NOTIFY=&SYSUID,                                          
+//             MSGLEVEL=(1,1)                                           
+//********************************************************************* 
+//* BORRA UN ARCHIVO                                                    
+//********************************************************************* 
+//STEP1  EXEC PGM=IDCAMS                                                
+//SYSPRINT DD  SYSOUT=*                                                 
+//SYSIN    DD  *                                                        
+   DELETE B386900.DATOS.KSDSFILE                                        
+/*                                                                      
+**************************** Bottom of Data ****************************
+
