@@ -1,0 +1,4 @@
+
+0100X000006000Valor distinto de A, B o M.             
+0350A000050000SE QUIERE DAR DE ALTA USUARIO EXISTENTE 
+0400M000044000Campo de NOMBRE vacio o no alfabetico.  

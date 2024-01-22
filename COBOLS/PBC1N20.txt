@@ -1,0 +1,198 @@
+      *----------------------------------------------------------------*
+       IDENTIFICATION DIVISION.
+      *----------------------------------------------------------------*
+       PROGRAM-ID. PBC1N20.
+       AUTHOR. BURGIO DAMIAN.
+      *
+      * Programa que proceso el fichero con los NIFs y graba a su
+      * salida otro PS con el DNI y su letra.
+      *----------------------------------------------------------------*
+       ENVIRONMENT DIVISION.
+      *----------------------------------------------------------------*
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT ENTRADA
+                  ASSIGN INNIF
+                  ORGANIZATION IS SEQUENTIAL
+                  ACCESS MODE IS SEQUENTIAL
+                  FILE STATUS FS-ENTRADA.
+           SELECT SALIDA
+                  ASSIGN OUNIF
+                  ORGANIZATION IS SEQUENTIAL
+                  ACCESS MODE IS SEQUENTIAL
+                  FILE STATUS FS-SALIDA.
+      *----------------------------------------------------------------*
+       DATA DIVISION.
+      *----------------------------------------------------------------*
+       FILE SECTION.
+       FD  ENTRADA
+           LABEL RECORD IS STANDARD
+           BLOCK CONTAINS 0 RECORDS
+           RECORDING MODE IS F
+           DATA RECORD IS REG-ENTRADA.
+       01  REG-ENTRADA         PIC X(60).
+       FD  SALIDA
+           LABEL RECORD IS STANDARD
+           BLOCK CONTAINS 0 RECORDS
+           RECORDING MODE IS F
+           DATA RECORD IS REG-SALIDA.
+       01  REG-SALIDA          PIC X(60).
+
+       WORKING-STORAGE SECTION.
+       01  WS-CONTANTES.
+           05 CTE-NOMPGM         PIC X(7)  VALUE 'PBC1N20'.
+           05 CTE-PBC1M99        PIC X(7)  VALUE 'PBC1M99'.
+       01  WS-VARIABLES.
+           05 FS-ENTRADA         PIC 9(2)  VALUE ZEROES.
+           05 FS-SALIDA          PIC 9(2)  VALUE ZEROES.
+           05 IN-ENTRADA-REG.
+              10 IN-NOMBRE       PIC X(30) VALUE SPACES.
+              10 IN-DNI          PIC X(8)  VALUE SPACES.
+              10 FILLER          PIC X(22) VALUE SPACES.
+           05 OU-SALIDA-REG.
+              10 OU-DNI-COMPLETO.
+                 15 OU-DNI       PIC X(8)  VALUE SPACES.
+                 15 OU-LETRA     PIC X(1)  VALUE SPACES.
+              10 OU-CHECK        PIC X(30) VALUE SPACES.
+              10 FILLER          PIC X(21) VALUE SPACES.
+           05 WS-PBC1M99.
+              10 WS-DNI          PIC X(8)  VALUE SPACES.
+              10 WS-LETRA        PIC X     VALUE SPACES.
+              10 WS-RETURN       PIC X(2)  VALUE SPACES.
+       01  CONTADORES.
+           05 CTR-LEIDOS         PIC 9(2).
+           05 CTR-GRABADOS       PIC 9(2).
+       01  SWITCHES.
+           05 SW-ENTRADA         PIC X     VALUE 'N'.
+              88 END-ENTRADA               VALUE 'Y'.
+           05 SW-VACIO           PIC X     VALUE 'N'.
+              88 YES-VACIO                 VALUE 'Y'.
+
+      *----------------------------------------------------------------*
+       PROCEDURE DIVISION.
+      *----------------------------------------------------------------*
+           PERFORM 1000-INICIO
+           PERFORM 2000-PROCESS UNTIL END-ENTRADA
+           PERFORM 3000-END
+           .
+
+      *------------*
+       1000-INICIO.
+      *------------*
+           INITIALIZE CONTADORES
+
+           PERFORM 1100-ABRIR
+
+           PERFORM 2100-LEER
+           IF END-ENTRADA THEN
+              SET YES-VACIO TO TRUE
+           END-IF
+           .
+
+       1100-ABRIR.
+           OPEN INPUT ENTRADA
+           IF FS-ENTRADA NOT = ZEROES
+              DISPLAY 'ERROR AL ABRIR ENTRADA:' FS-ENTRADA
+              PERFORM 9990-CANCELAR
+           END-IF
+
+           OPEN OUTPUT SALIDA
+           IF FS-SALIDA NOT = ZEROES
+              DISPLAY 'ERROR AL ABRIR SALIDA: ' FS-SALIDA
+              PERFORM 9990-CANCELAR
+           END-IF
+           .
+
+      *------------*
+       2000-PROCESS.
+      *------------*
+           PERFORM 2050-ASIGNAR
+           WRITE REG-SALIDA FROM OU-SALIDA-REG
+           IF FS-SALIDA NOT = ZEROES
+              DISPLAY 'ERROR AL GRABAR FICHERO SALIDA: ' FS-SALIDA
+              PERFORM 9990-CANCELAR
+           ELSE
+              ADD 1 TO CTR-GRABADOS
+           END-IF
+
+           PERFORM 2100-LEER
+           IF FS-ENTRADA = 10
+              SET END-ENTRADA TO TRUE
+           END-IF
+           .
+
+       2050-ASIGNAR.
+           INITIALIZE OU-SALIDA-REG
+
+           MOVE IN-DNI      TO OU-DNI
+
+           INITIALIZE WS-PBC1M99
+           MOVE IN-DNI         TO WS-DNI OF WS-PBC1M99
+
+           CALL CTE-PBC1M99 USING WS-PBC1M99
+
+           EVALUATE WS-RETURN
+               WHEN 'OK'
+                  MOVE WS-LETRA OF WS-PBC1M99  TO OU-LETRA
+                  MOVE SPACES                  TO OU-CHECK
+               WHEN 'KO'
+                  MOVE SPACES                  TO OU-LETRA
+                  MOVE 'NIF incorrecto.'       TO OU-CHECK
+               WHEN OTHER
+                  MOVE SPACES                  TO OU-LETRA
+                  MOVE 'Error incontrolado'    TO OU-CHECK
+           END-EVALUATE
+           .
+
+       2100-LEER.
+           READ ENTRADA INTO IN-ENTRADA-REG
+             AT END
+                SET END-ENTRADA TO TRUE
+             NOT AT END
+                ADD 1 TO CTR-LEIDOS
+           END-READ
+
+           IF FS-ENTRADA NOT EQUAL ZEROES AND 10
+              DISPLAY 'ERROR AL LEER ENTRADA: ' FS-ENTRADA
+              PERFORM 9990-CANCELAR
+           END-IF
+           .
+
+      *------------*
+       3000-END.
+      *------------*
+           IF YES-VACIO
+              DISPLAY 'FICHERO DE ENTRADA VACÍO'
+           END-IF
+
+           CLOSE ENTRADA
+           IF FS-ENTRADA NOT = ZEROES
+              DISPLAY 'ERROR AL CERRAR ENTRADA: ' FS-ENTRADA
+           END-IF
+
+           CLOSE SALIDA
+           IF FS-SALIDA    NOT = ZEROES
+              DISPLAY 'ERROR AL CERRAR SALIDA   : ' FS-SALIDA
+           END-IF
+
+           DISPLAY 'CONTADOR NIFS LEIDOS  : ' CTR-LEIDOS
+           DISPLAY 'CONTADOR NIFS GRABADOS: ' CTR-GRABADOS
+
+           STOP RUN.
+
+      *------------*
+       9990-CANCELAR.
+      *------------*
+           DISPLAY '************************************'
+           DISPLAY ' SE CANCELA EL PROGRAMA Y LA CADENA '
+           DISPLAY '************************************'
+           DISPLAY ' REGISTROS LEIDOS  : ' CTR-LEIDOS
+           DISPLAY ' REGISTROS GRABADOS: ' CTR-GRABADOS
+           CLOSE ENTRADA SALIDA
+           MOVE 1001 TO RETURN-CODE
+           STOP RUN.
+
+
