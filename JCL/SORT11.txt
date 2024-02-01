@@ -1,0 +1,25 @@
+//JSORT11  JOB NOTIFY=&SYSUID                                           
+//**********************************************************************
+//* CUENTA EL NUMERO DE OCURRENCIAS DE DOS PALABRAS                     
+//* DENTRO DE UN ARCHIVO.                                               
+//**********************************************************************
+//STEP0100 EXEC PGM=SORT                                                
+//SYSOUT   DD SYSOUT=*                                                  
+//SORTIN   DD *                                                         
+DATA00001000ORDER                                                       
+DATAORDER01003903                                                       
+BATA39ORDER394301                                                       
+DATA0975ORDER1930                                                       
+//SORTOUT  DD SYSOUT=*                                                  
+//SYSIN    DD *                                                         
+  INCLUDE COND=(1,80,SS,EQ,C'ORDER',OR,                                 
+                1,80,SS,EQ,C'BATA')                                     
+                                                                        
+  SORT FIELDS=COPY                                                      
+  INREC IFOUTLEN=2,IFTHEN=(WHEN=INIT,BUILD=(2C'0',1,80)),                 IFTHEN=(WHEN=(3,80,SS,EQ,C'ORDER'),OVERLAY=(1:C'1'),HIT=NEXT),  
+  IFTHEN=(WHEN=(3,80,SS,EQ,C'BATA'),OVERLAY=(2:C'1'))             
+                                                                  
+  OUTFIL REMOVECC,NODETAIL,BUILD=(16X),                           
+  TRAILER1=('ORDER ',TOT=(1,1,ZD,M10,LENGTH=10),/,                
+            'BATA  ',TOT=(2,1,ZD,M10,LENGTH=10))                  
+//*                                                               
