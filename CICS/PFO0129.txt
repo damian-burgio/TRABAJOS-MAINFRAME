@@ -1,0 +1,383 @@
+      *----------------------------------------------------------*      
+      * APLICACION  : GIT - PLAN DE FACILIDADES                  *      
+      * IDENTIF.    : CUBE-2512                                  *      
+      * PROGRAMA    : PFO0129                                    *      
+      * TRANSACCION : -                                          *      
+      * OBJETIVO    : DEVOLUCION EXPRESS                         *      
+      *----------------------------------------------------------*      
+       IDENTIFICATION DIVISION.                                         
+       PROGRAM-ID.    PFO0129.                                          
+       AUTHOR.        PABLO E.RUIZ.                                     
+       DATE-WRITTEN.  01 DE FEBRERO DE 2024.                            
+      *----------------------------------------------------------*      
+      *        L O G   D E   M O D I F I C A C I O N E S         *      
+      *----------------------------------------------------------*      
+      *   MARCA  AUTOR    FECHA          DESCRIPCION             *      
+      *   -----  -----   -------   ----------------------------  *      
+      *                                                          *      
+      *----------------------------------------------------------*      
+      **********************                                            
+       ENVIRONMENT DIVISION.                                     
+      **********************                                     
+       CONFIGURATION SECTION.                                    
+         SOURCE-COMPUTER.  IBM-370.                              
+         OBJECT-COMPUTER.  IBM-370.                              
+         SPECIAL-NAMES.    DECIMAL-POINT IS COMMA.               
+       INPUT-OUTPUT SECTION.                                     
+       DATA DIVISION.                                            
+      *************************                                  
+       WORKING-STORAGE SECTION.                                  
+      *************************                                  
+      *   VARIABLES                                              
+       01  VARIABLES.                                            
+           03  COM-LEN            PIC S9(07) COMP VALUE +0.      
+           03  WS-ERROR           PIC 9(5).                      
+           03  WS-VIGENTES        PIC X(02) VALUE SPACES.        
+                                                                 
+       01 WS-CANAL                PIC X(16) VALUE SPACES.        
+      *                                                          
+       01 WS-FECHA-HOY-R.                                               
+           03 WS-ANIO-ACTUAL.                                           
+              05 WS-FECOY-ANO-SGL       PIC  99   VALUE 20.             
+              05 WS-FECOY-ANO           PIC  99.                        
+           03 WS-ANIO-ACTUAL-R  REDEFINES  WS-ANIO-ACTUAL  PIC 9(04).   
+           03 FILLER                    PIC  X    VALUE '-'.            
+           03 WS-FECOY-MES              PIC  99.                        
+           03 FILLER                    PIC  X    VALUE '-'.            
+           03 WS-FECOY-DIA              PIC  99.                        
+       01 WS-FECHA-HOY  REDEFINES  WS-FECHA-HOY-R   PIC X(10).          
+                                                                        
+       01 WS-FECHA-DE-HOY.                                              
+          03 WS-FECDEHOY-ANO            PIC  99.                        
+          03 WS-FECDEHOY-MES            PIC  99.                        
+          03 WS-FECDEHOY-DIA            PIC  99.                        
+      *                                                                 
+      *---------------------------------------------------------------- 
+      *         AREA DE COMUNICACION DE ESTE PROGRAMA                   
+      *---------------------------------------------------------------- 
+                                                                        
+          COPY  WPO0129.                                                
+                                                                        
+      *---------------------------------------------------------------- 
+      *  AREA DE COMUNICACION CON RUTINA DE BUSQUEDA DE ERRORES         
+      *---------------------------------------------------------------- 
+                                                                        
+          COPY  WCE0016.                                                
+                                                                        
+      *---------------------------------------------------------------- 
+      *   COPY DE ERRORES                                               
+      *---------------------------------------------------------------- 
+                                                                        
+          COPY  WCE0002.                                                
+                                                                        
+      *----------------------------------------------------------*      
+      *                      DB2                                 *      
+      *----------------------------------------------------------*      
+           EXEC SQL                                                     
+                INCLUDE SQLCA                                           
+           END-EXEC.                                                    
+                                                                        
+      *----------------------------------------------------------*      
+      *                 INCLUDE DE TABLAS                        *      
+      *----------------------------------------------------------*      
+                                                                        
+      ***                                                               
+           EXEC SQL                                                     
+                INCLUDE GIDV0704                                        
+           END-EXEC.                                                    
+      ***                                                               
+           EXEC SQL                                                     
+                INCLUDE GIDV1004                                        
+           END-EXEC.                                                    
+                                                                        
+                                                                        
+      *-------------------                                              
+       PROCEDURE DIVISION.                                              
+      *-------------------                                              
+       0-CUERPO-PRINCIPAL.                                              
+      *-------------------                                              
+                                                                        
+           PERFORM  1000-INICIO     THRU                                
+                    1000-FIN-INICIO                                     
+                                                                        
+           PERFORM  2000-PROCESO    THRU                                
+                    2000-FIN-PROCESO                                    
+                                                                        
+           PERFORM  9000-FINAL      THRU                                
+                    9000-FIN-FINAL.                                     
+                                                                        
+      ***************************************************************** 
+                                                                        
+      *------------                                                     
+       1000-INICIO.                                                     
+      *------------                                                     
+                                                                        
+           INITIALIZE VARIABLES                                     
+           INITIALIZE WPO129-ENTRADA                                
+                      WPO129-SALIDA                                 
+                                                                    
+           MOVE SPACES  TO  WCE0002-DFHCOMMAREA                     
+                                                                    
+           PERFORM 1100-TOMA-FECHA-DIA       THRU                   
+                   1100-FIN-TOMA-FECHA-DIA                          
+                                                                    
+           EXEC CICS ASSIGN CHANNEL (WS-CANAL)                      
+           END-EXEC                                                 
+                                                                    
+           EXEC CICS GET CONTAINER(CONTAINER-IPFO129)               
+                            CHANNEL(WS-CANAL)                       
+                            INTO (WPO129-ENTRADA)                   
+                            FLENGTH (LENGTH OF WPO129-ENTRADA)      
+                            NOHANDLE                                
+           END-EXEC                                                 
+                                                                    
+           IF EIBRESP NOT = DFHRESP (NORMAL)                            
+              MOVE  1                    TO  WCE0002-RETCODE            
+              MOVE  EIBRESP              TO  WCE0002-SQLCODE            
+              MOVE  'CTPFO0129-I'        TO  WCE0002-NOMRECURSO         
+              MOVE  'PFO0129'            TO  WCE0002-NOMCOMPONENTE      
+              MOVE  'ERROR EN GET CONTAINER DE INPUT'                   
+                                         TO  WCE0002-MENSERROR          
+              MOVE  0                    TO  WCE0002-CANTERRORES        
+              PERFORM  8000-TERMINO-ANORMAL  THRU                       
+                       8000-FIN-TERMINO-ANORMAL                         
+           END-IF.                                                      
+                                                                        
+           IF WPO129-CUIT-I NOT NUMERIC                                 
+              MOVE 2                    TO WCE0002-RETCODE              
+              MOVE 255                  TO WCE0002-SQLCODE-FUNC         
+                                           WS-ERROR                     
+              MOVE 'WPO129-CUIT-I '     TO WCE0002-NOMRECURSO           
+              MOVE  'PFO0129'           TO WCE0002-NOMCOMPONENTE        
+              MOVE 0                    TO WCE0002-CANTERRORES          
+      *       PERFORM  6000-LINK-MSG-ERR     THRU                     
+      *                6000-FIN-LINK-MSG-ERR                          
+              PERFORM  8000-TERMINO-ANORMAL  THRU                     
+                       8000-FIN-TERMINO-ANORMAL                       
+           END-IF.                                                    
+                                                                      
+           IF WPO129-CUIT-I > 0                                       
+              CONTINUE                                                
+           ELSE                                                       
+              MOVE 2                    TO WCE0002-RETCODE            
+              MOVE 255                  TO WCE0002-SQLCODE-FUNC       
+                                           WS-ERROR                   
+              MOVE 'WPO129-CUIT-I '     TO WCE0002-NOMRECURSO         
+              MOVE  'PFO0129'           TO WCE0002-NOMCOMPONENTE      
+              MOVE 0                    TO WCE0002-CANTERRORES        
+      *       PERFORM  6000-LINK-MSG-ERR     THRU                     
+      *                6000-FIN-LINK-MSG-ERR                          
+              PERFORM  8000-TERMINO-ANORMAL  THRU                     
+                       8000-FIN-TERMINO-ANORMAL                       
+           END-IF.                                                   
+                                                                     
+           IF WPO129-CANT-REG-I NOT EQUAL 1                          
+              MOVE 2                    TO WCE0002-RETCODE           
+              MOVE 99000                TO WCE0002-SQLCODE-FUNC      
+                                           WS-ERROR                  
+              MOVE 'WPO129-CANT-REG-I ' TO WCE0002-NOMRECURSO        
+              MOVE  'PFO0129'           TO WCE0002-NOMCOMPONENTE     
+              MOVE 0                    TO WCE0002-CANTERRORES       
+      *       PERFORM  6000-LINK-MSG-ERR     THRU                    
+      *                6000-FIN-LINK-MSG-ERR                         
+              PERFORM  8000-TERMINO-ANORMAL  THRU                    
+                       8000-FIN-TERMINO-ANORMAL                      
+           END-IF.                                                   
+                                                                     
+      *----------------                                              
+       1000-FIN-INICIO.                                              
+      *----------------                                              
+             EXIT.                                                   
+                                                                       
+      *---------------------                                           
+       1100-TOMA-FECHA-DIA.                                            
+      *---------------------                                           
+                                                                       
+           ACCEPT WS-FECHA-DE-HOY FROM DATE                            
+                                                                       
+           MOVE WS-FECDEHOY-ANO     TO WS-FECOY-ANO                    
+           MOVE WS-FECDEHOY-MES     TO WS-FECOY-MES                    
+           MOVE WS-FECDEHOY-DIA     TO WS-FECOY-DIA.                   
+                                                                       
+      *-------------------------                                       
+       1100-FIN-TOMA-FECHA-DIA.                                        
+      *-------------------------                                       
+             EXIT.                                                     
+                                                                       
+      *-------------                                                   
+       2000-PROCESO.                                                   
+      *-------------                                                   
+                                                             
+           PERFORM 2100-SELECT-GIT0704    THRU               
+                   2100-FIN-SELECT-GIT0704.                  
+                                                             
+      *-----------------                                     
+       2000-FIN-PROCESO.                                     
+      *-----------------                                     
+             EXIT.                                           
+                                                             
+      *---------------------                                 
+       2100-SELECT-GIT0704.                                  
+      *---------------------                                 
+      *    DISPLAY '2100-SELECT-GIT0704'.                    
+                                                             
+           MOVE SPACES               TO  WS-VIGENTES         
+                                                             
+           MOVE WPO129-CUIT-I        TO  G0704CUITTITULAR    
+                                                             
+           EXEC SQL                                          
+              SELECT G0704CUITTITULAR                                 
+              INTO  :G0704CUITTITULAR                                 
+              FROM  GIV0704                                           
+              WHERE G0704CUITTITULAR = :G0704CUITTITULAR              
+              AND   G0704ESTADO      = 72000                          
+           END-EXEC                                                   
+      *                                                               
+           EVALUATE SQLCODE                                           
+              WHEN ZEROS                                              
+              WHEN -811                                               
+                   MOVE 'SI'               TO WS-VIGENTES             
+                   MOVE 1                  TO WPO129-CANT-REG-O       
+                   MOVE G0704CUITTITULAR   TO WPO129-CUIT-O           
+                   MOVE WS-VIGENTES        TO WPO129-POSEE-DEUDA-O    
+              WHEN 100                                                
+                   MOVE 'NO' TO WS-VIGENTES                           
+PR                 MOVE 1                  TO WPO129-CANT-REG-O       
+PR                 MOVE WPO129-CUIT-I      TO WPO129-CUIT-O           
+      *            PERFORM 2150-SELECT-GIT1004 THRU                   
+      *                    2150-FIN-SELECT-GIT1004                      
+                   MOVE WS-VIGENTES TO WPO129-POSEE-DEUDA-O             
+              WHEN OTHER                                                
+                   MOVE  1                    TO  WCE0002-RETCODE       
+                   MOVE  SQLCODE              TO  WCE0002-SQLCODE       
+                   MOVE  'SGIT0704'           TO  WCE0002-NOMRECURSO    
+                   MOVE  'PFO0129'            TO  WCE0002-NOMCOMPONENTE 
+                   MOVE  'ERROR SELECT TABLA GIT0704'                   
+                                              TO  WCE0002-MENSERROR     
+                   MOVE  0                    TO  WCE0002-CANTERRORES   
+                   PERFORM  8000-TERMINO-ANORMAL  THRU                  
+                            8000-FIN-TERMINO-ANORMAL                    
+           END-EVALUATE.                                                
+                                                                        
+      *-------------------------                                        
+       2100-FIN-SELECT-GIT0704.                                         
+      *-------------------------                                        
+           EXIT.                                                        
+                                                                        
+      *-----------------------                                
+       2150-SELECT-GIT1004.                                   
+      *-----------------------                                
+      *    DISPLAY '2150-SELECT-GIT1004'                      
+                                                              
+           MOVE WPO129-CUIT-I TO G1004CUIT                    
+                                                              
+           EXEC SQL                                           
+              SELECT G1004ADJUDICACION                        
+              INTO  :G1004ADJUDICACION                        
+              FROM  GIV1004                                   
+              WHERE G1004CUIT   = :G1004CUIT                  
+              AND   G1004IMPORNOMINAL <> 0                    
+           END-EXEC                                           
+      *                                                       
+           EVALUATE SQLCODE                                   
+              WHEN ZEROS                                      
+              WHEN -811                                       
+                   MOVE 'SI'               TO WS-VIGENTES     
+                   MOVE 1                  TO WPO129-CANT-REG-O         
+                   MOVE G1004CUIT          TO WPO129-CUIT-O             
+                   MOVE WS-VIGENTES        TO WPO129-POSEE-DEUDA-O      
+              WHEN 100                                                  
+                   MOVE 'NO'               TO WS-VIGENTES               
+                   MOVE ZEROS              TO WPO129-RETCODE-O          
+                   MOVE 1                  TO WPO129-CANT-REG-O         
+                   MOVE G1004CUIT          TO WPO129-CUIT-O             
+                   MOVE WS-VIGENTES        TO WPO129-POSEE-DEUDA-O      
+                                                                        
+              WHEN OTHER                                                
+                   MOVE  1                    TO  WCE0002-RETCODE       
+                   MOVE  SQLCODE              TO  WCE0002-SQLCODE       
+                   MOVE  'SGIT1004'           TO  WCE0002-NOMRECURSO    
+                   MOVE  'PFO0129'            TO  WCE0002-NOMCOMPONENTE 
+                   MOVE  'ERROR SELECT TABLA GIT1004'                   
+                                              TO  WCE0002-MENSERROR     
+                   MOVE  0                    TO  WCE0002-CANTERRORES   
+                   PERFORM  8000-TERMINO-ANORMAL  THRU                  
+                            8000-FIN-TERMINO-ANORMAL                    
+           END-EVALUATE.                                                
+                                                                        
+      *-------------------------                                        
+       2150-FIN-SELECT-GIT1004.                                         
+      *-------------------------                                        
+           EXIT.                                                        
+                                                                        
+      *----------------------                                           
+       8000-TERMINO-ANORMAL.                                            
+      *----------------------                                           
+      *    DISPLAY '8000-TERMINO-ANORMAL'.                              
+                                                                        
+           EXEC CICS PUT CONTAINER(CONTAINER-EPFO129)                   
+                     CHANNEL(WS-CANAL)                                  
+                     FROM(WCE0002-DFHCOMMAREA)                          
+                     FLENGTH(LENGTH OF WCE0002-DFHCOMMAREA)             
+                     NOHANDLE                                           
+           END-EXEC                                                     
+                                                             
+           PERFORM 9999-SALIDA  THRU                         
+                   9999-FIN-SALIDA.                          
+                                                             
+      *---------------------------                           
+       8000-FIN-TERMINO-ANORMAL.                             
+      *---------------------------                           
+             EXIT.                                           
+                                                             
+      *----------------------                                
+       9000-FINAL.                                           
+      *----------------------                                
+      *    DISPLAY '9000-FINAL'.                             
+                                                             
+           MOVE  ZEROS              TO  WPO129-RETCODE-O     
+                                                             
+           EXEC CICS PUT CONTAINER(CONTAINER-OPFO129)        
+                     CHANNEL(WS-CANAL)                       
+                     FROM(WPO129-SALIDA)                     
+                     FLENGTH(LENGTH OF WPO129-SALIDA)                  
+                     NOHANDLE                                          
+           END-EXEC                                                    
+                                                                       
+           IF EIBRESP NOT = DFHRESP (NORMAL)                           
+              MOVE  1                    TO  WCE0002-RETCODE           
+              MOVE  EIBRESP              TO  WCE0002-SQLCODE           
+              MOVE  'CTPFO0129-O'        TO  WCE0002-NOMRECURSO        
+              MOVE  'PFO0129'            TO  WCE0002-NOMCOMPONENTE     
+              MOVE  'ERROR EN PUT CONTAINER DE SALIDA'                 
+                                         TO  WCE0002-MENSERROR         
+              MOVE  0                    TO  WCE0002-CANTERRORES       
+                                                                       
+              PERFORM  8000-TERMINO-ANORMAL  THRU                      
+                       8000-FIN-TERMINO-ANORMAL                        
+           END-IF                                                      
+                                                                       
+           PERFORM 9999-SALIDA  THRU                                   
+                   9999-FIN-SALIDA.                                    
+                                   
+      *-----------------           
+       9000-FIN-FINAL.             
+      *-----------------           
+             EXIT.                 
+                                   
+      *-------------               
+       9999-SALIDA.                
+      *-------------               
+                                   
+           EXEC CICS               
+               RETURN              
+           END-EXEC.               
+                                   
+      *-----------------           
+       9999-FIN-SALIDA.            
+      *-----------------           
+           EXIT.                   
+                                   
+      *-----------------------------------------------------------*    
+      *            F I N   P R O G R A M A   PFO0129              *    
+      *-----------------------------------------------------------*    
