@@ -1,0 +1,26 @@
+//OSGENERX JOB CLASS=A,                                                 
+//             PRTY=15,                                                 
+//             MSGCLASS=A,                                              
+//             MSGLEVEL=(2,1),                                          
+//             NOTIFY=&SYSUID                                           
+//*                                                                     
+//*  PRUEBA DE OSGENER.                                                 
+//*                                                                     
+//*------------------------------------------------------------*        
+//PASO005  EXEC PGM=OSGENER                                             
+//*------------------------------------------------------------*        
+//SYSPRINT DD SYSOUT=*                                           
+//SYSLST   DD SYSOUT=*                                           
+//SYSUT1   DD DSN=ARBD.TV.D541.SECU.TEMP.DEBITO.ROMBO3,DISP=SHR   
+//SYSUT2   DD DSN=ARBD.TV.D541.SECU.TEMP.DEBITO.ROMBO4,           
+//            DISP=(,CATLG,DELETE),                               
+//            SPACE=(CYL,(10,10)),                                
+//            DCB=(LRECL=80,RECFM=FB),                            
+//            UNIT=SYSDA                                          
+//SYSUT6   DD DSN=ARBD.SEN.T016676.MAES.DEBITOS.ENVIADOS,DISP=SHR 
+//SYSIN    DD *                                                  
+UT1 SEQ                                                           
+UT2 SEQ,R,(100)                                                   
+UT6 SEQ                                                           
+PESQOUT 1,10,1                                                    
+SELEC 1,80,,1
